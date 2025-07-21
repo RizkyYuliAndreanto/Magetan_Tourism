@@ -28,9 +28,18 @@ module.exports = {
         allowNull: false,
         unique: true,
       },
+      
       level_akses: {
         type: Sequelize.ENUM("superadmin", "admin", "user"),
         allowNull: false,
+      },
+      resetPasswordToken: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      resetPasswordExpires: {
+        type: Sequelize.STRING,
+       allowNull: true,
       },
       // *** PERUBAHAN DI SINI ***
       created_at: {
