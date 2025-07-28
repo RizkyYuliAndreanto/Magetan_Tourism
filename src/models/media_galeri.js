@@ -5,36 +5,35 @@ module.exports = (sequelize, DataTypes) => {
   class Media_Galeri extends Model {
     static associate(models) {
       // Asosiasi polimorfik kembali ke konten (Berita, Destinasi, Event, UMKM, Sejarah)
-      // Ini adalah contoh bagaimana Anda bisa mengaitkan kembali ke model asalnya.
+      // Hapus opsi 'scope' dari semua belongsTo di sini
       Media_Galeri.belongsTo(models.Berita, {
         foreignKey: "id_konten",
         constraints: false,
-        scope: { tipe_konten: "berita" },
+        // scope: { tipe_konten: "berita" }, // HAPUS BARIS INI
         as: "berita",
       });
       Media_Galeri.belongsTo(models.Destinasi, {
         foreignKey: "id_konten",
         constraints: false,
-        scope: { tipe_konten: "destinasi" },
+        // scope: { tipe_konten: "destinasi" }, // HAPUS BARIS INI
         as: "destinasi",
       });
       Media_Galeri.belongsTo(models.Event, {
         foreignKey: "id_konten",
         constraints: false,
-        scope: { tipe_konten: "event" },
+        // scope: { tipe_konten: "event" }, // HAPUS BARIS INI
         as: "event",
       });
       Media_Galeri.belongsTo(models.UMKM, {
         foreignKey: "id_konten",
         constraints: false,
-        scope: { tipe_konten: "umkm" },
+        // scope: { tipe_konten: "umkm" }, // HAPUS BARIS INI
         as: "umkm",
       });
       Media_Galeri.belongsTo(models.Sejarah, {
-        // Tambahkan asosiasi untuk Sejarah
         foreignKey: "id_konten",
         constraints: false,
-        scope: { tipe_konten: "sejarah" },
+        // scope: { tipe_konten: "sejarah" }, // HAPUS BARIS INI
         as: "sejarah",
       });
     }
@@ -48,7 +47,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
       },
       tipe_konten: {
-        type: DataTypes.ENUM("berita", "destinasi","sejarah", "event", "umkm", ), 
+        type: DataTypes.ENUM("berita", "destinasi", "sejarah", "event", "umkm"),
         allowNull: false,
       },
       id_konten: {
@@ -75,7 +74,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: "Media_Galeri",
-      tableName: "Media_Galeris", // Sesuai migrasi
+      tableName: "Media_Galeris",
       timestamps: true,
       underscored: true,
     }

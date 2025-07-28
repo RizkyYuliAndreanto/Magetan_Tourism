@@ -4,17 +4,14 @@ const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Destinasi extends Model {
     static associate(models) {
-      // Destinasi dimiliki oleh Kategori_Destinasi
       Destinasi.belongsTo(models.Kategori_Destinasi, {
         foreignKey: "id_kategori_destinasi",
         as: "kategoriDestinasi",
       });
-      // Destinasi dimiliki oleh Admin
       Destinasi.belongsTo(models.Admin, {
         foreignKey: "id_admin",
         as: "adminPembuat",
       });
-      // Destinasi memiliki banyak Komentar (polimorfik)
       Destinasi.hasMany(models.Komentar, {
         foreignKey: "id_konten",
         constraints: false,
@@ -23,7 +20,6 @@ module.exports = (sequelize, DataTypes) => {
         },
         as: "komentarDestinasi",
       });
-      // Destinasi memiliki banyak Like (polimorfik)
       Destinasi.hasMany(models.Like, {
         foreignKey: "id_konten",
         constraints: false,
@@ -32,7 +28,6 @@ module.exports = (sequelize, DataTypes) => {
         },
         as: "likeDestinasi",
       });
-      // Destinasi memiliki banyak Media_Galeri (polimorfik)
       Destinasi.hasMany(models.Media_Galeri, {
         foreignKey: "id_konten",
         constraints: false,
@@ -41,7 +36,6 @@ module.exports = (sequelize, DataTypes) => {
         },
         as: "galeriDestinasi",
       });
-      // Destinasi memiliki banyak Share_Log (polimorfik)
       Destinasi.hasMany(models.Share_Log, {
         foreignKey: "id_konten",
         constraints: false,
@@ -50,7 +44,6 @@ module.exports = (sequelize, DataTypes) => {
         },
         as: "shareDestinasi",
       });
-      // Destinasi memiliki satu Halaman (polimorfik)
       Destinasi.hasOne(models.Halaman, {
         foreignKey: "id_konten",
         constraints: false,
@@ -117,7 +110,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: "Destinasi",
-      tableName: "Destinasi", // Sesuai migrasi
+      tableName: "Destinasis", // KOREKSI: Sesuaikan dengan nama tabel jamak 'Destinasis'
       timestamps: true,
       underscored: true,
     }

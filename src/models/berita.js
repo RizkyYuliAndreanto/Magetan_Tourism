@@ -4,36 +4,30 @@ const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Berita extends Model {
     static associate(models) {
-      // Berita dimiliki oleh Kategori_Berita
       Berita.belongsTo(models.Kategori_Berita, {
         foreignKey: "id_kategori",
         as: "kategoriBerita",
       });
-      // Berita dimiliki oleh Admin
       Berita.belongsTo(models.Admin, {
         foreignKey: "id_admin",
         as: "adminPembuat",
       });
-      // Berita memiliki banyak Komentar (polimorfik melalui id_konten, tipe_konten)
-      // Perhatikan: Untuk polimorfik, asosiasi ini perlu penanganan khusus di Komentar
       Berita.hasMany(models.Komentar, {
         foreignKey: "id_konten",
-        constraints: false, // Penting untuk polimorfik
+        constraints: false,
         scope: {
           tipe_konten: "berita",
         },
         as: "komentarBerita",
       });
-      // Berita memiliki banyak Like (polimorfik)
       Berita.hasMany(models.Like, {
         foreignKey: "id_konten",
-        constraints: false, // Penting untuk polimorfik
+        constraints: false,
         scope: {
           tipe_konten: "berita",
         },
         as: "likeBerita",
       });
-      // Berita memiliki banyak Media_Galeri (polimorfik)
       Berita.hasMany(models.Media_Galeri, {
         foreignKey: "id_konten",
         constraints: false,
@@ -42,7 +36,6 @@ module.exports = (sequelize, DataTypes) => {
         },
         as: "galeriBerita",
       });
-      // Berita memiliki banyak Share_Log (polimorfik)
       Berita.hasMany(models.Share_Log, {
         foreignKey: "id_konten",
         constraints: false,
@@ -51,7 +44,6 @@ module.exports = (sequelize, DataTypes) => {
         },
         as: "shareBerita",
       });
-      // Berita memiliki satu Halaman (polimorfik)
       Berita.hasOne(models.Halaman, {
         foreignKey: "id_konten",
         constraints: false,
@@ -122,7 +114,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: "Berita",
-      tableName: "Berita", // Sesuai migrasi
+      tableName: "Beritas", // KOREKSI: Sesuaikan dengan nama tabel jamak 'Beritas'
       timestamps: true,
       underscored: true,
     }

@@ -3,7 +3,7 @@ const express = require("express");
 const DestinasiController = require("../controller/destinasiController");
 const authMiddleware = require("../middleware/authMiddleware");
 const authorize = require("../middleware/authorizeMiddleware");
-const configureMulter = require("../utils`/multerConfig"); // Import fungsi configureMulter yang baru
+const configureMulter = require("../utils/multerConfig"); // Import fungsi configureMulter yang baru
 
 const router = express.Router();
 
