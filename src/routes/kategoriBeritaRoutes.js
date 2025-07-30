@@ -1,6 +1,6 @@
 // src/routes/kategoriBeritaRoutes.js
 const express = require("express");
-const KategoriBeritaController = require("../controller/kategoriBeritaController");
+const KategoriBeritaController = require("../controllers/kategoriBeritaController");
 const authMiddleware = require("../middleware/authMiddleware"); // Pastikan ini ada
 const authorize = require("../middleware/authorizeMiddleware"); // Pastikan ini ada
 

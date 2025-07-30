@@ -1,6 +1,6 @@
 // src/routes/umkmRoutes.js
 const express = require("express");
-const UMKMController = require("../controller/umkmController");
+const UMKMController = require("../controllers/umkmController");
 const authMiddleware = require("../middleware/authMiddleware");
 const authorize = require("../middleware/authorizeMiddleware");
 const configureMulter = require("../utils/multerConfig"); // Import fungsi configureMulter yang sudah dimodifikasi

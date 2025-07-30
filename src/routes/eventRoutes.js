@@ -1,6 +1,6 @@
 // src/routes/eventRoutes.js
 const express = require("express");
-const EventController = require("../controller/eventController"); // Pastikan path ke controllers
+const EventController = require("../controllers/eventController"); // Pastikan path ke controllers
 const authMiddleware = require("../middleware/authMiddleware");
 const authorize = require("../middleware/authorizeMiddleware");
 const configureMulter = require("../utils/multerConfig"); // Sesuaikan path jika berbeda

@@ -1,6 +1,6 @@
 // src/routes/strukturAnggotaRoutes.js
 const express = require("express");
-const StrukturAnggotaController = require("../controller/strukturAnggotaController");
+const StrukturAnggotaController = require("../controllers/strukturAnggotaController");
 const authMiddleware = require("../middleware/authMiddleware");
 const authorize = require("../middleware/authorizeMiddleware");
 const configureMulter = require("../utils/multerConfig"); // Import fungsi configureMulter yang sudah dimodifikasi

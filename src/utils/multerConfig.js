@@ -6,6 +6,7 @@ const fs = require("fs");
 const configureMulter = () => {
   const storage = multer.diskStorage({
     destination: (req, file, cb) => {
+      console.debug("Multer received fieldname:", file.fieldname);
       let uploadFolder = "";
       // Tentukan folder berdasarkan nama field
       if (file.fieldname === "brosur_event") {
@@ -27,6 +28,23 @@ const configureMulter = () => {
       } else if (file.fieldname === "foto_anggota") {
         // BARU: Logika untuk foto_anggota
         uploadFolder = "struktur-anggota/foto"; // Folder untuk foto anggota
+      } else if (file.fieldname === "file_pdf_pengumuman") {
+        // BARU: Logika untuk file_pdf_pengumuman
+        uploadFolder = "pengumuman/pdf"; // Folder untuk file PDF pengumuman
+      } else if (file.fieldname === "gambar_utama_hotel") {
+        // Untuk Akomodasi
+        uploadFolder = "akomodasi/gambar-utama";
+      } else if (file.fieldname === "file_pdf_ppid") {
+        // Untuk PPID PDF
+        uploadFolder = "ppid/pdf";
+      } else if (file.fieldname === "gambar_ppid_galeri") {
+        // Untuk PPID Galeri
+        uploadFolder = "ppid/galeri";
+      } else if (file.fieldname === "visi_misi_file") {
+        uploadFolder = "visi-misi"; // Folder untuk file visi misi (gambar/pdf)
+        
+      } else if (file.fieldname === "gambar_struktur_organisasi") {
+        uploadFolder = "struktur-organisasi"; // Folder untuk file visi misi (gambar/pdf)
       } else {
         return cb(new Error("Unexpected field name for file upload!"), false);
       }
@@ -84,7 +102,7 @@ const configureMulter = () => {
     storage: storage,
     fileFilter: fileFilter,
     limits: {
-      fileSize: 1024 * 1024 * 20, // Batasi ukuran file hingga 20MB (contoh, tingkatkan jika perlu untuk video)
+      fileSize: 1024 * 1024 * 50, // Batasi ukuran file hingga 50MB (contoh, tingkatkan jika perlu untuk video)
     },
   });
 };

@@ -1,6 +1,6 @@
 // src/routes/mediaGaleriRoutes.js
 const express = require("express");
-const MediaGaleriController = require("../controller/mediaGaleriController");
+const MediaGaleriController = require("../controllers/mediaGaleriController");
 const authMiddleware = require("../middleware/authMiddleware");
 const authorize = require("../middleware/authorizeMiddleware");
 const configureMulter = require("../utils/multerConfig");

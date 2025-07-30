@@ -1,6 +1,6 @@
 // src/routes/kategoriDestinasiRoutes.js
 const express = require("express");
-const KategoriDestinasiController = require("../controller/kategoriDestinasiController");
+const KategoriDestinasiController = require("../controllers/kategoriDestinasiController");
 const authMiddleware = require("../middleware/authMiddleware"); // Pastikan ini ada
 const authorize = require("../middleware/authorizeMiddleware"); // Pastikan ini ada
 

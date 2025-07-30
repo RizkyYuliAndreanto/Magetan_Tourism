@@ -1,6 +1,6 @@
 // src/routes/sejarahRoutes.js
 const express = require("express");
-const SejarahController = require("../controller/sejarahController"); // Pastikan path ke controllers
+const SejarahController = require("../controllers/sejarahController"); // Pastikan path ke controllers
 const authMiddleware = require("../middleware/authMiddleware");
 const authorize = require("../middleware/authorizeMiddleware");
 const configureMulter = require("../utils/multerConfig"); // Import fungsi configureMulter yang sudah dimodifikasi

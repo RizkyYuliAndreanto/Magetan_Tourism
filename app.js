@@ -10,7 +10,10 @@ const sejarahRoutes = require("./src/routes/sejarahRoutes"); // Ini penting!
 const umkmRoutes = require("./src/routes/umkmRoutes"); // Ini penting!
 const mediaGaleriRoutes = require("./src/routes/mediaGaleriRoutes"); // Ini penting!
 const strukturAnggotaRoutes = require("./src/routes/strukturAnggotaRoutes"); // Ini penting!
-
+const pengumumanRoutes = require("./src/routes/pengumumanRoutes"); // Ini penting!
+const visiMisiRoutes = require("./src/routes/visiMisiRoutes"); // Ini penting!
+const strukturOrganisasiRoutes = require("./src/routes/strukturOrganisasiRoutes"); // Ini penting!
+const akomodasiRoutes = require("./src/routes/akomodasiRoutes"); // Ini penting!
 const app = express();
 
 app.use(express.json());
@@ -34,6 +37,11 @@ app.use("/api/sejarah", sejarahRoutes);
 app.use("/api/umkm", umkmRoutes)
 app.use("/api/media-galeri", mediaGaleriRoutes);
 app.use("/api/struktur-anggota", strukturAnggotaRoutes);
+app.use("/api/pengumuman", pengumumanRoutes)
+app.use("/api/visi-misi", visiMisiRoutes);
+app.use("/api/struktur-organisasi", strukturOrganisasiRoutes);
+app.use("/api/akomodasi", akomodasiRoutes);
+
 
 // Middleware penanganan kesalahan umum
 app.use((err, req, res, next) => {

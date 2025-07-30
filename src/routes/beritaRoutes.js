@@ -1,6 +1,6 @@
 // src/routes/beritaRoutes.js
 const express = require("express");
-const BeritaController = require("../controller/beritaController");
+const BeritaController = require("../controllers/beritaController");
 const authMiddleware = require("../middleware/authMiddleware");
 const authorize = require("../middleware/authorizeMiddleware");
 const configureMulter = require("../utils/multerConfig"); // Import multer config

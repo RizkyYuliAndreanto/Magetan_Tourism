@@ -1,6 +1,6 @@
 // src/routes/authRoutes.js
 const express = require("express");
-const AuthController = require("../controller/authController");
+const AuthController = require("../controllers/authController");
 const authMiddleware = require("../middleware/authMiddleware");
 const authorize = require("../middleware/authorizeMiddleware"); // Buat middleware ini
 
