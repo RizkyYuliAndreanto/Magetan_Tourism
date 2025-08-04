@@ -4,12 +4,10 @@ const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Event extends Model {
     static associate(models) {
-      // Event dimiliki oleh Admin
       Event.belongsTo(models.Admin, {
         foreignKey: "id_admin",
         as: "adminPembuat",
       });
-      // Event memiliki banyak Komentar (polimorfik)
       Event.hasMany(models.Komentar, {
         foreignKey: "id_konten",
         constraints: false,
@@ -18,7 +16,6 @@ module.exports = (sequelize, DataTypes) => {
         },
         as: "komentarEvent",
       });
-      // Event memiliki banyak Like (polimorfik)
       Event.hasMany(models.Like, {
         foreignKey: "id_konten",
         constraints: false,
@@ -27,7 +24,6 @@ module.exports = (sequelize, DataTypes) => {
         },
         as: "likeEvent",
       });
-      // Event memiliki banyak Media_Galeri (polimorfik)
       Event.hasMany(models.Media_Galeri, {
         foreignKey: "id_konten",
         constraints: false,
@@ -36,7 +32,6 @@ module.exports = (sequelize, DataTypes) => {
         },
         as: "galeriEvent",
       });
-      // Event memiliki banyak Share_Log (polimorfik)
       Event.hasMany(models.Share_Log, {
         foreignKey: "id_konten",
         constraints: false,
@@ -45,7 +40,6 @@ module.exports = (sequelize, DataTypes) => {
         },
         as: "shareEvent",
       });
-      // Event memiliki satu Halaman (polimorfik)
       Event.hasOne(models.Halaman, {
         foreignKey: "id_konten",
         constraints: false,
@@ -112,7 +106,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: "Event",
-      tableName: "Events", // Sesuai migrasi
+      tableName: "Events", // Sudah benar jamak
       timestamps: true,
       underscored: true,
     }

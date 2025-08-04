@@ -2,36 +2,36 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Sejarahs', {
+    await queryInterface.createTable("Sejarahs", {
       id_sejarah: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
       },
       judul: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
       deskripsi: {
-        type: Sequelize.TEXT
+        type: Sequelize.TEXT,
       },
       tanggal_kejadian: {
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
       },
       gambar_sejarah: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
       id_admin: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
       },
-      createdAt: {
+      created_at: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
       },
-      updatedAt: {
+      updated_at: {
         allowNull: false,
-        type: Sequelize.DATE
-      }
+        type: Sequelize.DATE,
+      },
     });
   },
   async down(queryInterface, Sequelize) {

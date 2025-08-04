@@ -1,0 +1,159 @@
+// src/controllers/beritaController.js
+const BeritaService = require("../services/beritaService");
+
+class BeritaController {
+  // Ambil semua berita
+  static async getAllBerita(req, res) {
+    try {
+      const berita = await BeritaService.getAllBerita();
+      res.status(200).json(berita);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+
+  // Ambil berita berdasarkan ID
+  static async getBeritaById(req, res) {
+    try {
+      const { id } = req.params;
+      const berita = await BeritaService.getBeritaById(id);
+      if (!berita) {
+        return res.status(404).json({ message: "Berita not found" });
+      }
+      res.status(200).json(berita);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+
+  // Buat berita baru
+  static async createBerita(req, res) {
+    const {
+      judul,
+      teras_berita,
+      isi_berita,
+      penutup_berita,
+      tanggal_publikasi,
+      koordinat_lokasi,
+      zoom_level_peta,
+      id_kategori,
+    } = req.body;
+    const id_admin = req.user.id;
+
+    // Ambil path file gambar jika ada
+    const gambar_hero_berita =
+      req.files &&
+      req.files["gambar_hero_berita"] &&
+      req.files["gambar_hero_berita"][0]
+        ? `/uploads/berita/gambar-hero/${req.files["gambar_hero_berita"][0].filename}`
+        : null;
+
+    try {
+      const newBerita = await BeritaService.createBerita(
+        {
+          judul,
+          teras_berita,
+          isi_berita,
+          penutup_berita,
+          tanggal_publikasi,
+          gambar_hero_berita,
+          koordinat_lokasi,
+          zoom_level_peta,
+          id_kategori,
+          id_admin,
+        },
+        req.user.level_akses
+      );
+      res
+        .status(201)
+        .json({ message: "Berita created successfully", berita: newBerita });
+    } catch (error) {
+      if (
+        error.name === "SequelizeValidationError" ||
+        error.name === "SequelizeUniqueConstraintError"
+      ) {
+        return res.status(400).json({ error: error.message });
+      }
+      if (
+        error.message.includes("Jenis file tidak didukung") ||
+        error.message.includes("Unexpected field name")
+      ) {
+        return res.status(400).json({ error: error.message });
+      }
+      if (
+        error.message.includes("Kategori dengan ID") ||
+        error.message.includes("Admin dengan ID")
+      ) {
+        return res.status(400).json({ error: error.message });
+      }
+      res.status(403).json({ error: error.message });
+    }
+  }
+
+  // Perbarui berita
+  static async updateBerita(req, res) {
+    const { id } = req.params;
+    const updateData = req.body;
+    const id_admin_requester = req.user.id;
+    const level_akses_requester = req.user.level_akses;
+
+    // Ambil path file gambar baru jika ada
+    if (
+      req.files &&
+      req.files["gambar_hero_berita"] &&
+      req.files["gambar_hero_berita"][0]
+    ) {
+      updateData.gambar_hero_berita = `/uploads/berita/gambar-hero/${req.files["gambar_hero_berita"][0].filename}`;
+    }
+
+    try {
+      const updatedBerita = await BeritaService.updateBerita(
+        id,
+        updateData,
+        id_admin_requester,
+        level_akses_requester
+      );
+      res.status(200).json({
+        message: "Berita updated successfully",
+        berita: updatedBerita,
+      });
+    } catch (error) {
+      if (error.name === "SequelizeValidationError") {
+        return res.status(400).json({ error: error.message });
+      }
+      if (error.message === "Berita not found") {
+        return res.status(404).json({ error: error.message });
+      }
+      if (
+        error.message.includes("Jenis file tidak didukung") ||
+        error.message.includes("Unexpected field name")
+      ) {
+        return res.status(400).json({ error: error.message });
+      }
+      res.status(403).json({ error: error.message });
+    }
+  }
+
+  // Hapus berita
+  static async deleteBerita(req, res) {
+    const { id } = req.params;
+    const id_admin_requester = req.user.id;
+    const level_akses_requester = req.user.level_akses;
+
+    try {
+      await BeritaService.deleteBerita(
+        id,
+        id_admin_requester,
+        level_akses_requester
+      );
+      res.status(200).json({ message: "Berita deleted successfully" });
+    } catch (error) {
+      if (error.message === "Berita not found") {
+        return res.status(404).json({ error: error.message });
+      }
+      res.status(403).json({ error: error.message });
+    }
+  }
+}
+
+module.exports = BeritaController;

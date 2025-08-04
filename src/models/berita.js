@@ -4,60 +4,49 @@ const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Berita extends Model {
     static associate(models) {
-      // Berita dimiliki oleh Kategori_Berita
+      // Asosiasi ke model Kategori_Berita
       Berita.belongsTo(models.Kategori_Berita, {
         foreignKey: "id_kategori",
         as: "kategoriBerita",
       });
-      // Berita dimiliki oleh Admin
+      // Asosiasi ke model Admin
       Berita.belongsTo(models.Admin, {
         foreignKey: "id_admin",
         as: "adminPembuat",
       });
-      // Berita memiliki banyak Komentar (polimorfik melalui id_konten, tipe_konten)
-      // Perhatikan: Untuk polimorfik, asosiasi ini perlu penanganan khusus di Komentar
+      // Asosiasi ke model Komentar
       Berita.hasMany(models.Komentar, {
         foreignKey: "id_konten",
-        constraints: false, // Penting untuk polimorfik
-        scope: {
-          tipe_konten: "berita",
-        },
+        constraints: false,
+        scope: { tipe_konten: "berita" },
         as: "komentarBerita",
       });
-      // Berita memiliki banyak Like (polimorfik)
+      // Asosiasi ke model Like
       Berita.hasMany(models.Like, {
         foreignKey: "id_konten",
-        constraints: false, // Penting untuk polimorfik
-        scope: {
-          tipe_konten: "berita",
-        },
+        constraints: false,
+        scope: { tipe_konten: "berita" },
         as: "likeBerita",
       });
-      // Berita memiliki banyak Media_Galeri (polimorfik)
+      // Asosiasi ke model Media_Galeri
       Berita.hasMany(models.Media_Galeri, {
         foreignKey: "id_konten",
         constraints: false,
-        scope: {
-          tipe_konten: "berita",
-        },
+        scope: { tipe_konten: "berita" },
         as: "galeriBerita",
       });
-      // Berita memiliki banyak Share_Log (polimorfik)
+      // Asosiasi ke model Share_Log
       Berita.hasMany(models.Share_Log, {
         foreignKey: "id_konten",
         constraints: false,
-        scope: {
-          tipe_konten: "berita",
-        },
+        scope: { tipe_konten: "berita" },
         as: "shareBerita",
       });
-      // Berita memiliki satu Halaman (polimorfik)
+      // Asosiasi ke model Halaman
       Berita.hasOne(models.Halaman, {
         foreignKey: "id_konten",
         constraints: false,
-        scope: {
-          tipe_konten: "berita",
-        },
+        scope: { tipe_konten: "berita" },
         as: "halamanBerita",
       });
     }
@@ -122,7 +111,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: "Berita",
-      tableName: "Berita", // Sesuai migrasi
+      tableName: "Beritas", // Menyesuaikan nama tabel agar konsisten dengan 'Kategori_Berita'
       timestamps: true,
       underscored: true,
     }

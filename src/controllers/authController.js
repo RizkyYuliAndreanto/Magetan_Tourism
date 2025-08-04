@@ -4,7 +4,7 @@ const AuthService = require("../services/authService");
 class AuthController {
   static async register(req, res) {
     const { username, password, nama_lengkap, email } = req.body;
-    const level_akses = req.body.level_akses || "user";
+    const level_akses = req.body.level_akses || " user";
 
     if (level_akses !== "user") {
       return res.status(403).json({
