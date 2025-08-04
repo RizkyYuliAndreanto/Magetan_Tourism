@@ -1,5 +1,5 @@
 // src/services/beritaService.js
-const { Destinasi, Kategori_Destinasi, Admin } = require("../models"); // Pastikan path benar
+const { Destinasi, Kategori_Destinasi, Admin, Media_Galeri } = require("../models"); // Pastikan path benar
 
 class DestinasiService {
   static async getAllDestinasi() {
@@ -15,6 +15,18 @@ class DestinasiService {
             model: Admin,
             as: "adminPembuat",
             attributes: ["username", "nama_lengkap", "level_akses"],
+          },
+          {
+            // Tambahkan include untuk Media_Galeri di sini
+            model: Media_Galeri,
+            as: "galeriDestinasi",
+            attributes: [
+              "path_file",
+              "deskripsi_file",
+              "jenis_file",
+              "urutan_tampil",
+            ],
+            order: [["urutan_tampil", "ASC"]], // Urutkan media di galeri
           },
         ],
       });
@@ -37,6 +49,18 @@ class DestinasiService {
             model: Admin,
             as: "adminPembuat",
             attributes: ["username", "nama_lengkap", "email", "level_akses"],
+          },
+          {
+            // Tambahkan include untuk Media_Galeri di sini
+            model: Media_Galeri,
+            as: "galeriDestinasi",
+            attributes: [
+              "path_file",
+              "deskripsi_file",
+              "jenis_file",
+              "urutan_tampil",
+            ],
+            order: [["urutan_tampil", "ASC"]], // Urutkan media di galeri
           },
           // Anda bisa menambahkan include untuk Komentar, Like, dll. jika diperlukan
           // { model: models.Komentar, as: 'komentarBerita', where: { tipe_konten: 'berita' }, required: false },

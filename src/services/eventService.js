@@ -1,5 +1,5 @@
 // src/services/eventService.js
-const { Event, Admin } = require("../models"); // Pastikan path benar
+const { Event, Admin, Media_Galeri } = require("../models"); // Pastikan path benar
 
 class EventService {
   static async getAllEvent() {
@@ -10,6 +10,18 @@ class EventService {
             model: Admin,
             as: "adminPembuat",
             attributes: ["username", "nama_lengkap", "level_akses"],
+          },
+          {
+            // Tambahkan include untuk Media_Galeri di sini
+            model: Media_Galeri,
+            as: "galeriEvent",
+            attributes: [
+              "path_file",
+              "deskripsi_file",
+              "jenis_file",
+              "urutan_tampil",
+            ],
+            order: [["urutan_tampil", "ASC"]], // Urutkan media di galeri
           },
         ],
       });
@@ -27,6 +39,18 @@ class EventService {
             model: Admin,
             as: "adminPembuat",
             attributes: ["username", "nama_lengkap", "email", "level_akses"],
+          },
+          {
+            // Tambahkan include untuk Media_Galeri di sini
+            model: Media_Galeri,
+            as: "galeriEvent",
+            attributes: [
+              "path_file",
+              "deskripsi_file",
+              "jenis_file",
+              "urutan_tampil",
+            ],
+            order: [["urutan_tampil", "ASC"]], // Urutkan media di galeri
           },
           // Anda bisa menambahkan include untuk Komentar, Like, dll. jika diperlukan
         ],

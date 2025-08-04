@@ -4,9 +4,9 @@ const {
   Admin,
   Komentar,
   Like,
-  Media_Galeri,
   Share_Log,
   Halaman,
+  Media_Galeri,
 } = require("../models"); // Pastikan semua model yang terkait di-import
 
 class UMKMService {
@@ -19,6 +19,12 @@ class UMKMService {
             as: "adminPembuat",
             attributes: ["username", "nama_lengkap", "level_akses"],
           },
+          // { // Tambahkan include untuk Media_Galeri di sini
+          //   model: Media_Galeri,
+          //   as: "galeriUMKM",
+          //   attributes: ["path_file", "deskripsi_file", "jenis_file", "urutan_tampil"],
+          //   order: [["urutan_tampil", "ASC"]], // Urutkan media di galeri
+          // }
           // Anda bisa uncomment ini jika ingin menyertakan relasi terkait
           // {
           //   model: Komentar,
@@ -61,6 +67,18 @@ class UMKMService {
             model: Admin,
             as: "adminPembuat",
             attributes: ["username", "nama_lengkap", "email", "level_akses"],
+          },
+          {
+            // Tambahkan include untuk Media_Galeri di sini
+            model: Media_Galeri,
+            as: "galeriUMKM",
+            attributes: [
+              "path_file",
+              "deskripsi_file",
+              "jenis_file",
+              "urutan_tampil",
+            ],
+            order: [["urutan_tampil", "ASC"]], // Urutkan media di galeri
           },
           // Uncomment jika ingin menyertakan relasi terkait saat mengambil detail
           // {

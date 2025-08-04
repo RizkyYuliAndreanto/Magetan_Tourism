@@ -1,5 +1,5 @@
 // src/services/sejarahService.js // Nama file harus 'sejarahService.js', bukan 'beritaService.js'
-const { Sejarah, Admin } = require("../models"); // Pastikan path benar
+const { Sejarah, Admin, Media_Galeri } = require("../models"); // Pastikan path benar
 
 class SejarahService {
   static async getAllSejarah() {
@@ -11,6 +11,18 @@ class SejarahService {
             model: Admin,
             as: "adminPembuat",
             attributes: ["username", "nama_lengkap", "level_akses"],
+          },
+          {
+            // Tambahkan include untuk Media_Galeri di sini
+            model: Media_Galeri,
+            as: "galeriSejarah",
+            attributes: [
+              "path_file",
+              "deskripsi_file",
+              "jenis_file",
+              "urutan_tampil",
+            ],
+            order: [["urutan_tampil", "ASC"]], // Urutkan media di galeri
           },
         ],
       });
@@ -29,6 +41,18 @@ class SejarahService {
             model: Admin,
             as: "adminPembuat",
             attributes: ["username", "nama_lengkap", "email", "level_akses"],
+          },
+          {
+            // Tambahkan include untuk Media_Galeri di sini
+            model: Media_Galeri,
+            as: "galeriSejarah",
+            attributes: [
+              "path_file",
+              "deskripsi_file",
+              "jenis_file",
+              "urutan_tampil",
+            ],
+            order: [["urutan_tampil", "ASC"]], // Urutkan media di galeri
           },
           // Anda bisa menambahkan include untuk Komentar, Like, dll. jika diperlukan
         ],

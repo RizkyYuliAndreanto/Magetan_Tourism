@@ -4,52 +4,49 @@ const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Berita extends Model {
     static associate(models) {
+      // Asosiasi ke model Kategori_Berita
       Berita.belongsTo(models.Kategori_Berita, {
         foreignKey: "id_kategori",
         as: "kategoriBerita",
       });
+      // Asosiasi ke model Admin
       Berita.belongsTo(models.Admin, {
         foreignKey: "id_admin",
         as: "adminPembuat",
       });
+      // Asosiasi ke model Komentar
       Berita.hasMany(models.Komentar, {
         foreignKey: "id_konten",
         constraints: false,
-        scope: {
-          tipe_konten: "berita",
-        },
+        scope: { tipe_konten: "berita" },
         as: "komentarBerita",
       });
+      // Asosiasi ke model Like
       Berita.hasMany(models.Like, {
         foreignKey: "id_konten",
         constraints: false,
-        scope: {
-          tipe_konten: "berita",
-        },
+        scope: { tipe_konten: "berita" },
         as: "likeBerita",
       });
+      // Asosiasi ke model Media_Galeri
       Berita.hasMany(models.Media_Galeri, {
         foreignKey: "id_konten",
         constraints: false,
-        scope: {
-          tipe_konten: "berita",
-        },
+        scope: { tipe_konten: "berita" },
         as: "galeriBerita",
       });
+      // Asosiasi ke model Share_Log
       Berita.hasMany(models.Share_Log, {
         foreignKey: "id_konten",
         constraints: false,
-        scope: {
-          tipe_konten: "berita",
-        },
+        scope: { tipe_konten: "berita" },
         as: "shareBerita",
       });
+      // Asosiasi ke model Halaman
       Berita.hasOne(models.Halaman, {
         foreignKey: "id_konten",
         constraints: false,
-        scope: {
-          tipe_konten: "berita",
-        },
+        scope: { tipe_konten: "berita" },
         as: "halamanBerita",
       });
     }
@@ -114,7 +111,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: "Berita",
-      tableName: "Beritas", // KOREKSI: Sesuaikan dengan nama tabel jamak 'Beritas'
+      tableName: "Beritas", // Menyesuaikan nama tabel agar konsisten dengan 'Kategori_Berita'
       timestamps: true,
       underscored: true,
     }

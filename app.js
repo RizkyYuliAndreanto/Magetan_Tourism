@@ -14,6 +14,9 @@ const pengumumanRoutes = require("./src/routes/pengumumanRoutes"); // Ini pentin
 const visiMisiRoutes = require("./src/routes/visiMisiRoutes"); // Ini penting!
 const strukturOrganisasiRoutes = require("./src/routes/strukturOrganisasiRoutes"); // Ini penting!
 const akomodasiRoutes = require("./src/routes/akomodasiRoutes"); // Ini penting!
+const kategoriPpidRoutes = require("./src/routes/kategoriPpidRoutes"); // Ini penting!
+const kontenPpidRoutes = require("./src/routes/kontenPpidRoutes"); // Ini penting!
+
 const app = express();
 
 app.use(express.json());
@@ -25,10 +28,12 @@ app.use(
     credentials: true,
   })
 );
+
+
 // Serve static files from the 'uploads' directory
 app.use('/uploads', express.static('uploads'));
 app.use("/api/auth", authRoutes);
-app.use("/api/berita", beritaRoutes);
+app.use("/api/berita", beritaRoutes,);
 app.use("/api/kategori-berita", kategoriBeritaRoutes);
 app.use("/api/destinasi", destinasiRoutes);
 app.use("/api/kategori-destinasi", kategoriDestinasiRoutes);
@@ -41,6 +46,8 @@ app.use("/api/pengumuman", pengumumanRoutes)
 app.use("/api/visi-misi", visiMisiRoutes);
 app.use("/api/struktur-organisasi", strukturOrganisasiRoutes);
 app.use("/api/akomodasi", akomodasiRoutes);
+app.use("/api/kategori-ppid", kategoriPpidRoutes);
+app.use("/api/konten-ppid", kontenPpidRoutes);
 
 
 // Middleware penanganan kesalahan umum

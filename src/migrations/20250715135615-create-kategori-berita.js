@@ -1,8 +1,9 @@
-'use strict';
+"use strict";
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("Kategori_Beritas", {
+    // Perbaikan: Ganti nama tabel menjadi 'kategori_beritas' (huruf kecil, jamak)
+    await queryInterface.createTable("kategori_beritas", {
       id_kategori: {
         allowNull: false,
         autoIncrement: true,
@@ -11,21 +12,24 @@ module.exports = {
       },
       nama_kategori: {
         type: Sequelize.STRING,
+        allowNull: false,
+        unique: true,
       },
       deskripsi_kategori: {
         type: Sequelize.TEXT,
+        allowNull: true,
       },
-      createdAt: {
+      created_at: {
         allowNull: false,
         type: Sequelize.DATE,
       },
-      updatedAt: {
+      updated_at: {
         allowNull: false,
         type: Sequelize.DATE,
       },
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Kategori_Berita');
-  }
+    await queryInterface.dropTable("kategori_beritas");
+  },
 };

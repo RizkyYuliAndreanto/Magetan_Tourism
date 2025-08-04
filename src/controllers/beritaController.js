@@ -2,7 +2,7 @@
 const BeritaService = require("../services/beritaService");
 
 class BeritaController {
-  // GET all Berita
+  // Ambil semua berita
   static async getAllBerita(req, res) {
     try {
       const berita = await BeritaService.getAllBerita();
@@ -12,7 +12,7 @@ class BeritaController {
     }
   }
 
-  // GET Berita by ID
+  // Ambil berita berdasarkan ID
   static async getBeritaById(req, res) {
     try {
       const { id } = req.params;
@@ -26,7 +26,7 @@ class BeritaController {
     }
   }
 
-  // CREATE new Berita
+  // Buat berita baru
   static async createBerita(req, res) {
     const {
       judul,
@@ -39,9 +39,14 @@ class BeritaController {
       id_kategori,
     } = req.body;
     const id_admin = req.user.id;
-    const gambar_hero_berita = req.file
-      ? `/uploads/${req.file.filename}`
-      : null; // Dapatkan path file yang disimpan
+
+    // Ambil path file gambar jika ada
+    const gambar_hero_berita =
+      req.files &&
+      req.files["gambar_hero_berita"] &&
+      req.files["gambar_hero_berita"][0]
+        ? `/uploads/berita/gambar-hero/${req.files["gambar_hero_berita"][0].filename}`
+        : null;
 
     try {
       const newBerita = await BeritaService.createBerita(
@@ -51,7 +56,7 @@ class BeritaController {
           isi_berita,
           penutup_berita,
           tanggal_publikasi,
-          gambar_hero_berita, // Gunakan path file yang diupload
+          gambar_hero_berita,
           koordinat_lokasi,
           zoom_level_peta,
           id_kategori,
@@ -69,20 +74,36 @@ class BeritaController {
       ) {
         return res.status(400).json({ error: error.message });
       }
+      if (
+        error.message.includes("Jenis file tidak didukung") ||
+        error.message.includes("Unexpected field name")
+      ) {
+        return res.status(400).json({ error: error.message });
+      }
+      if (
+        error.message.includes("Kategori dengan ID") ||
+        error.message.includes("Admin dengan ID")
+      ) {
+        return res.status(400).json({ error: error.message });
+      }
       res.status(403).json({ error: error.message });
     }
   }
 
-  // UPDATE Berita by ID
+  // Perbarui berita
   static async updateBerita(req, res) {
     const { id } = req.params;
     const updateData = req.body;
     const id_admin_requester = req.user.id;
     const level_akses_requester = req.user.level_akses;
 
-    // Jika ada file gambar baru yang diupload, tambahkan ke updateData
-    if (req.file) {
-      updateData.gambar_hero_berita = `/uploads/${req.file.filename}`;
+    // Ambil path file gambar baru jika ada
+    if (
+      req.files &&
+      req.files["gambar_hero_berita"] &&
+      req.files["gambar_hero_berita"][0]
+    ) {
+      updateData.gambar_hero_berita = `/uploads/berita/gambar-hero/${req.files["gambar_hero_berita"][0].filename}`;
     }
 
     try {
@@ -103,11 +124,17 @@ class BeritaController {
       if (error.message === "Berita not found") {
         return res.status(404).json({ error: error.message });
       }
+      if (
+        error.message.includes("Jenis file tidak didukung") ||
+        error.message.includes("Unexpected field name")
+      ) {
+        return res.status(400).json({ error: error.message });
+      }
       res.status(403).json({ error: error.message });
     }
   }
 
-  // DELETE Berita by ID
+  // Hapus berita
   static async deleteBerita(req, res) {
     const { id } = req.params;
     const id_admin_requester = req.user.id;
@@ -124,7 +151,7 @@ class BeritaController {
       if (error.message === "Berita not found") {
         return res.status(404).json({ error: error.message });
       }
-      res.status(403).json({ error: error.message }); // Untuk error otorisasi
+      res.status(403).json({ error: error.message });
     }
   }
 }

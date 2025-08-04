@@ -37,12 +37,10 @@ module.exports = {
         onDelete: "SET NULL", // Sesuai model Anda
       },
       created_at: {
-        // KOREKSI: Pastikan nama kolom 'created_at' (underscored)
         allowNull: false,
         type: Sequelize.DATE,
       },
       updated_at: {
-        // KOREKSI: Pastikan nama kolom 'updated_at' (underscored)
         allowNull: false,
         type: Sequelize.DATE,
       },

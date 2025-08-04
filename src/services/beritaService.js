@@ -1,5 +1,5 @@
 // src/services/beritaService.js
-const { Berita, Kategori_Berita, Admin } = require("../models"); // Pastikan path benar
+const { Berita, Kategori_Berita, Admin, Media_Galeri } = require("../models"); // Pastikan Media_Galeri di-import
 
 class BeritaService {
   static async getAllBerita() {
@@ -15,6 +15,18 @@ class BeritaService {
             model: Admin,
             as: "adminPembuat",
             attributes: ["username", "nama_lengkap", "level_akses"],
+          },
+          {
+            // Tambahkan include untuk Media_Galeri
+            model: Media_Galeri,
+            as: "galeriBerita", // Menggunakan alias yang benar dari model Berita
+            attributes: [
+              "path_file",
+              "deskripsi_file",
+              "jenis_file",
+              "urutan_tampil",
+            ],
+            order: [["urutan_tampil", "ASC"]],
           },
         ],
       });
@@ -38,8 +50,18 @@ class BeritaService {
             as: "adminPembuat",
             attributes: ["username", "nama_lengkap", "email", "level_akses"],
           },
-          // Anda bisa menambahkan include untuk Komentar, Like, dll. jika diperlukan
-          // { model: models.Komentar, as: 'komentarBerita', where: { tipe_konten: 'berita' }, required: false },
+          {
+            // Tambahkan include untuk Media_Galeri
+            model: Media_Galeri,
+            as: "galeriBerita", // Menggunakan alias yang benar
+            attributes: [
+              "path_file",
+              "deskripsi_file",
+              "jenis_file",
+              "urutan_tampil",
+            ],
+            order: [["urutan_tampil", "ASC"]],
+          },
         ],
       });
       return berita;
@@ -50,20 +72,63 @@ class BeritaService {
 
   static async createBerita(beritaData, requesterLevelAkses) {
     try {
-      // Otorisasi: Hanya admin atau superadmin yang bisa membuat berita
+      console.log("📥 [DEBUG] Data diterima untuk pembuatan berita:");
+      console.log(JSON.stringify(beritaData, null, 2));
+
+      console.log("📥 [DEBUG] requesterLevelAkses:", requesterLevelAkses);
+
       if (
         requesterLevelAkses !== "admin" &&
         requesterLevelAkses !== "superadmin"
       ) {
+        console.warn("❌ [ACCESS DENIED] Level akses tidak diizinkan");
         throw new Error(
           "Forbidden: Only Admin or Super Admin can create news."
         );
       }
 
+      // Konversi id_kategori ke integer
+      beritaData.id_kategori = parseInt(beritaData.id_kategori);
+      beritaData.id_admin = parseInt(beritaData.id_admin);
+
+      console.log("✅ [DEBUG] Parsed id_kategori:", beritaData.id_kategori);
+      console.log("✅ [DEBUG] Parsed id_admin:", beritaData.id_admin);
+
+      const kategori = await Kategori_Berita.findByPk(beritaData.id_kategori);
+      if (!kategori) {
+        console.error(
+          `❌ [NOT FOUND] Kategori ID ${beritaData.id_kategori} tidak ditemukan`
+        );
+        throw new Error(
+          `Kategori dengan ID ${beritaData.id_kategori} tidak ditemukan.`
+        );
+      } else {
+        console.log(
+          `✅ [FOUND] Kategori ditemukan: ${
+            kategori.nama_kategori || "tanpa nama"
+          }`
+        );
+      }
+
+      const admin = await Admin.findByPk(beritaData.id_admin);
+      if (!admin) {
+        console.error(
+          `❌ [NOT FOUND] Admin ID ${beritaData.id_admin} tidak ditemukan`
+        );
+        throw new Error(
+          `Admin dengan ID ${beritaData.id_admin} tidak ditemukan.`
+        );
+      } else {
+        console.log(
+          `✅ [FOUND] Admin ditemukan: ${admin.username || "tanpa username"}`
+        );
+      }
+
       const newBerita = await Berita.create(beritaData);
+      console.log("✅ [SUCCESS] Berita berhasil dibuat:", newBerita.id_berita);
       return newBerita;
     } catch (error) {
-      // Sequelize validation errors will be caught here and re-thrown
+      console.error("🔥 [ERROR] Gagal membuat berita:", error.message);
       throw new Error("Could not create berita: " + error.message);
     }
   }
@@ -76,14 +141,9 @@ class BeritaService {
   ) {
     try {
       const berita = await Berita.findByPk(id);
-
       if (!berita) {
         throw new Error("Berita not found");
       }
-
-      // Otorisasi:
-      // Super Admin bisa mengedit berita apapun.
-      // Admin hanya bisa mengedit beritanya sendiri.
       if (
         levelAksesRequester === "admin" &&
         berita.id_admin !== idAdminRequester
@@ -97,7 +157,6 @@ class BeritaService {
           "Forbidden: Only Admin or Super Admin can update news."
         );
       }
-
       await berita.update(updateData);
       return berita;
     } catch (error) {
@@ -108,14 +167,9 @@ class BeritaService {
   static async deleteBerita(id, idAdminRequester, levelAksesRequester) {
     try {
       const berita = await Berita.findByPk(id);
-
       if (!berita) {
         throw new Error("Berita not found");
       }
-
-      // Otorisasi:
-      // Super Admin bisa menghapus berita apapun.
-      // Admin hanya bisa menghapus beritanya sendiri.
       if (
         levelAksesRequester === "admin" &&
         berita.id_admin !== idAdminRequester
@@ -129,7 +183,6 @@ class BeritaService {
           "Forbidden: Only Admin or Super Admin can delete news."
         );
       }
-
       await berita.destroy();
       return { message: "Berita deleted successfully" };
     } catch (error) {

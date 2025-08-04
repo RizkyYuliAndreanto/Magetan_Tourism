@@ -13,7 +13,7 @@ module.exports = {
         type: Sequelize.INTEGER,
       },
       tipe_konten: {
-        type: Sequelize.ENUM("berita", "event","sejarah","destinasi", "umkm"),
+        type: Sequelize.ENUM("berita", "event", "sejarah", "destinasi", "umkm"),
       },
       id_konten: {
         type: Sequelize.INTEGER,
@@ -33,11 +33,11 @@ module.exports = {
       status_komentar: {
         type: Sequelize.ENUM("pending", "disetujui", "ditolak"),
       },
-      createdAt: {
+      created_at: {
         allowNull: false,
         type: Sequelize.DATE,
       },
-      updatedAt: {
+      updated_at: {
         allowNull: false,
         type: Sequelize.DATE,
       },

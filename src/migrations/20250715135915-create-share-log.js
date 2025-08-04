@@ -13,7 +13,7 @@ module.exports = {
         type: Sequelize.INTEGER,
       },
       tipe_konten: {
-        type: Sequelize.ENUM("berita", "event","sejarah", "umkm", "destinasi"),
+        type: Sequelize.ENUM("berita", "event", "sejarah", "umkm", "destinasi"),
       },
       id_konten: {
         type: Sequelize.INTEGER,
@@ -28,18 +28,17 @@ module.exports = {
           "Telegram",
           "TikTok",
           "LinkedIn",
-          "Instagram",
-          
+          "Instagram"
         ),
       },
       tanggal_share: {
         type: Sequelize.DATE,
       },
-      createdAt: {
+      created_at: {
         allowNull: false,
         type: Sequelize.DATE,
       },
-      updatedAt: {
+      updated_at: {
         allowNull: false,
         type: Sequelize.DATE,
       },

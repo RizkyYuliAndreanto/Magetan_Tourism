@@ -10,7 +10,14 @@ module.exports = {
         type: Sequelize.INTEGER,
       },
       tipe_konten: {
-        type: Sequelize.ENUM("berita", "event","sejarah", "umkm", "destinasi", "lainnya"),
+        type: Sequelize.ENUM(
+          "berita",
+          "event",
+          "sejarah",
+          "umkm",
+          "destinasi",
+          "lainnya"
+        ),
       },
       id_konten: {
         type: Sequelize.INTEGER,
@@ -18,11 +25,11 @@ module.exports = {
       slug_url: {
         type: Sequelize.STRING,
       },
-      createdAt: {
+      created_at: {
         allowNull: false,
         type: Sequelize.DATE,
       },
-      updatedAt: {
+      updated_at: {
         allowNull: false,
         type: Sequelize.DATE,
       },

@@ -4,7 +4,6 @@ const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Kategori_Berita extends Model {
     static associate(models) {
-      // Kategori_Berita memiliki banyak Berita
       Kategori_Berita.hasMany(models.Berita, {
         foreignKey: "id_kategori",
         as: "beritaTerkait",
@@ -32,7 +31,8 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: "Kategori_Berita",
-      tableName: "Kategori_Berita", // Sesuai migrasi
+      // Perbaikan: Nama tabel harus 'kategori_beritas'
+      tableName: "kategori_beritas",
       timestamps: true,
       underscored: true,
     }
