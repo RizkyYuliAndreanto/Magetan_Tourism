@@ -33,17 +33,19 @@ const validateAdminLogin = (req, res, next) => {
 
 // --- Pengunjung Validators ---
 const validatePengunjungRegistration = (req, res, next) => {
-  const schema = Joi.object({
-    nama_pengunjung: Joi.string().min(3).max(100).optional().default("Anonim"),
-    email_pengunjung: Joi.string().email().optional().allow(null, ""),
-  });
-  const { error } = schema.validate(req.body);
-  if (error) {
-    return res.status(400).json({ message: error.details[0].message });
-  }
-  next();
+  // Skema ini harus sesuai dengan data yang dikirim dari frontend dan yang diharapkan controller
+  const schema = Joi.object({
+    username: Joi.string().alphanum().min(3).max(30).required(),
+    password: Joi.string().min(6).required(),
+    nama_lengkap: Joi.string().required(),
+    email: Joi.string().email().required(),
+  });
+  const { error } = schema.validate(req.body);
+  if (error) {
+    return res.status(400).json({ message: error.details[0].message });
+  }
+  next();
 };
-
 // --- Kategori Berita Validators ---
 const validateKategoriBeritaCreation = (req, res, next) => {
   const schema = Joi.object({

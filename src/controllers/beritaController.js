@@ -40,7 +40,6 @@ class BeritaController {
     } = req.body;
     const id_admin = req.user.id;
 
-    // Ambil path file gambar jika ada
     const gambar_hero_berita =
       req.files &&
       req.files["gambar_hero_berita"] &&
@@ -80,11 +79,9 @@ class BeritaController {
       ) {
         return res.status(400).json({ error: error.message });
       }
-      if (
-        error.message.includes("Kategori dengan ID") ||
-        error.message.includes("Admin dengan ID")
-      ) {
-        return res.status(400).json({ error: error.message });
+      // KOREKSI UTAMA: Ubah status code dari 400 menjadi 404
+      if (error.message.includes("tidak ditemukan")) {
+        return res.status(404).json({ error: error.message });
       }
       res.status(403).json({ error: error.message });
     }
@@ -97,7 +94,6 @@ class BeritaController {
     const id_admin_requester = req.user.id;
     const level_akses_requester = req.user.level_akses;
 
-    // Ambil path file gambar baru jika ada
     if (
       req.files &&
       req.files["gambar_hero_berita"] &&
@@ -129,6 +125,10 @@ class BeritaController {
         error.message.includes("Unexpected field name")
       ) {
         return res.status(400).json({ error: error.message });
+      }
+      // KOREKSI LOGIKA: Tangkap error dari service dengan pesan yang lebih spesifik
+      if (error.message.includes("tidak ditemukan")) {
+        return res.status(404).json({ error: error.message });
       }
       res.status(403).json({ error: error.message });
     }
