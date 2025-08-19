@@ -23,6 +23,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
+      sampul_pengumuman: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
       isi_pengumuman: {
         type: DataTypes.TEXT,
         allowNull: true, // Opsional, jika pengumuman hanya file PDF

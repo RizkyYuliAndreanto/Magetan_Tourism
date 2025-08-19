@@ -9,6 +9,11 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "id_admin",
         as: "adminPembuat",
       });
+      // UMKM dimiliki oleh Kategori_UMKM
+      UMKM.belongsTo(models.Kategori_UMKM, {
+        foreignKey: "id_kategori_umkm",
+        as: "kategoriUMKM",
+      });
       // UMKM memiliki banyak Komentar (polimorfik)
       UMKM.hasMany(models.Komentar, {
         foreignKey: "id_konten",
@@ -92,6 +97,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      gambar_sampul: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
       jumlah_dilihat: {
         type: DataTypes.INTEGER,
         defaultValue: 0,
@@ -99,6 +108,10 @@ module.exports = (sequelize, DataTypes) => {
       jumlah_share: {
         type: DataTypes.INTEGER,
         defaultValue: 0,
+      },
+      id_kategori_umkm: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
       },
       id_admin: {
         type: DataTypes.INTEGER,
@@ -108,7 +121,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: "UMKM",
-      tableName: "UMKMs", // Sesuai migrasi
+      tableName: "UMKMs",
       timestamps: true,
       underscored: true,
     }

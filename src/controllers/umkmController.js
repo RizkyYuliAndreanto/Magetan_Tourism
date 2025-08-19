@@ -2,7 +2,6 @@
 const UMKMService = require("../services/umkmService");
 
 class UMKMController {
-  // GET all UMKM
   static async getAllUMKM(req, res) {
     try {
       const umkm = await UMKMService.getAllUMKM();
@@ -12,7 +11,6 @@ class UMKMController {
     }
   }
 
-  // GET UMKM by ID
   static async getUMKMById(req, res) {
     try {
       const { id } = req.params;
@@ -26,7 +24,6 @@ class UMKMController {
     }
   }
 
-  // CREATE new UMKM
   static async createUMKM(req, res) {
     const {
       nama_umkm,
@@ -37,15 +34,20 @@ class UMKMController {
       website_umkm,
       jumlah_dilihat,
       jumlah_share,
+      id_kategori_umkm, // Tambahkan id_kategori_umkm
     } = req.body;
-    const id_admin = req.user.id; // Asumsi id_admin tersedia dari req.user setelah authMiddleware
+    const id_admin = req.user.id;
 
-    // Mengambil path file dari req.files
     const gambar_produk_utama_path =
       req.files &&
       req.files["gambar_produk_utama"] &&
       req.files["gambar_produk_utama"][0]
         ? `/uploads/umkm/gambar-produk/${req.files["gambar_produk_utama"][0].filename}`
+        : null;
+
+    const gambar_sampul_path =
+      req.files && req.files["gambar_sampul"] && req.files["gambar_sampul"][0]
+        ? `/uploads/umkm/gambar-sampul/${req.files["gambar_sampul"][0].filename}`
         : null;
 
     try {
@@ -58,8 +60,10 @@ class UMKMController {
           kontak_umkm,
           website_umkm,
           gambar_produk_utama: gambar_produk_utama_path,
-          jumlah_dilihat: parseInt(jumlah_dilihat) || 0, // Pastikan ini angka
-          jumlah_share: parseInt(jumlah_share) || 0, // Pastikan ini angka
+          gambar_sampul: gambar_sampul_path,
+          jumlah_dilihat: parseInt(jumlah_dilihat) || 0,
+          jumlah_share: parseInt(jumlah_share) || 0,
+          id_kategori_umkm, // Masukkan id_kategori_umkm ke data
           id_admin,
         },
         req.user.level_akses
@@ -75,7 +79,6 @@ class UMKMController {
       ) {
         return res.status(400).json({ error: error.message });
       }
-      // Tambahkan penanganan error Multer jika terjadi
       if (
         error.message.includes("Jenis file tidak didukung") ||
         error.message.includes("Unexpected field name")
@@ -86,14 +89,12 @@ class UMKMController {
     }
   }
 
-  // UPDATE UMKM by ID
   static async updateUMKM(req, res) {
     const { id } = req.params;
     const updateData = req.body;
     const id_admin_requester = req.user.id;
     const level_akses_requester = req.user.level_akses;
 
-    // Jika ada file gambar baru yang diupload, tambahkan ke updateData
     if (
       req.files &&
       req.files["gambar_produk_utama"] &&
@@ -101,8 +102,18 @@ class UMKMController {
     ) {
       updateData.gambar_produk_utama = `/uploads/umkm/gambar-produk/${req.files["gambar_produk_utama"][0].filename}`;
     }
+    // Menambahkan logika untuk update gambar sampul
+    if (
+      req.files &&
+      req.files["gambar_sampul"] &&
+      req.files["gambar_sampul"][0]
+    ) {
+      updateData.gambar_sampul = `/uploads/umkm/gambar-sampul/${req.files["gambar_sampul"][0].filename}`;
+    }
 
-    // Pastikan nilai angka dikonversi jika ada di updateData
+    if (updateData.id_kategori_umkm) {
+      updateData.id_kategori_umkm = parseInt(updateData.id_kategori_umkm);
+    }
     if (updateData.jumlah_dilihat) {
       updateData.jumlah_dilihat = parseInt(updateData.jumlah_dilihat);
     }
@@ -128,7 +139,6 @@ class UMKMController {
       if (error.message === "UMKM not found") {
         return res.status(404).json({ error: error.message });
       }
-      // Tambahkan penanganan error Multer jika terjadi
       if (
         error.message.includes("Jenis file tidak didukung") ||
         error.message.includes("Unexpected field name")
@@ -139,7 +149,6 @@ class UMKMController {
     }
   }
 
-  // DELETE UMKM by ID
   static async deleteUMKM(req, res) {
     const { id } = req.params;
     const id_admin_requester = req.user.id;

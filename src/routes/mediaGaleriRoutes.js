@@ -7,21 +7,20 @@ const configureMulter = require("../utils/multerConfig");
 
 const router = express.Router();
 
-// Panggil fungsi configureMulter tanpa argumen
 const upload = configureMulter();
 
-// Public routes (jika Anda ingin media galeri bisa diakses tanpa login)
+// Public routes
 router.get("/", MediaGaleriController.getAllMediaGaleri);
 router.get("/:id", MediaGaleriController.getMediaGaleriById);
 
-// Protected routes (membutuhkan otentikasi dan otorisasi untuk CREATE, UPDATE, DELETE)
+// Protected routes
 router.post(
   "/",
   authMiddleware,
   authorize(["admin", "superadmin"]),
-  // Gunakan .single() karena kita mengupload satu file untuk path_file
-  // Nama field di form-data Postman harus 'media_galeri_file'
-  upload.single("media_galeri_file"),
+  // PERUBAHAN: Menggunakan .array() untuk multi-file
+  // Nama field di form-data harus 'media_galeri_files'
+  upload.array("media_galeri_files", 10), // Maksimal 10 file
   MediaGaleriController.createMediaGaleri
 );
 
@@ -29,9 +28,8 @@ router.put(
   "/:id",
   authMiddleware,
   authorize(["admin", "superadmin"]),
-  // Jika ingin bisa mengupdate file fisik, gunakan upload.single() juga
-  // Jika hanya ingin update deskripsi/urutan, middleware ini bisa dihilangkan
-  upload.single("media_galeri_file"),
+  // Jika ingin bisa mengupdate file fisik, gunakan upload.single()
+  upload.single("media_galeri_file"), // Tetap single untuk edit
   MediaGaleriController.updateMediaGaleri
 );
 

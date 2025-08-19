@@ -1,5 +1,10 @@
 // src/controllers/kategoriPpidController.js
 const KategoriPpidService = require("../services/kategoriPpidService");
+const {
+  UniqueConstraintError,
+  ValidationError,
+  SequelizeForeignKeyConstraintError, // BARU: Impor kelas error ini
+} = require("sequelize");
 
 class KategoriPpidController {
   // GET all Kategori_PPID
@@ -64,13 +69,15 @@ class KategoriPpidController {
         kategori: newKategori,
       });
     } catch (error) {
-      if (
-        error.name === "SequelizeValidationError" ||
-        error.name === "SequelizeUniqueConstraintError"
-      ) {
+      // KOREKSI: Tambahkan penanganan error spesifik
+      if (error instanceof UniqueConstraintError) {
+        return res.status(400).json({
+          error: `Kategori '${req.body.nama_kategori}' already exists. Please choose another name.`,
+        });
+      } else if (error instanceof ValidationError) {
         return res.status(400).json({ error: error.message });
       }
-      res.status(403).json({ error: error.message }); // Untuk error otorisasi atau validasi kustom
+      res.status(403).json({ error: error.message }); // Untuk error otorisasi
     }
   }
 
@@ -102,7 +109,12 @@ class KategoriPpidController {
         kategori: updatedKategori,
       });
     } catch (error) {
-      if (error.name === "SequelizeValidationError") {
+      // KOREKSI: Tambahkan penanganan error spesifik
+      if (error instanceof UniqueConstraintError) {
+        return res.status(400).json({
+          error: `Kategori '${req.body.nama_kategori}' already exists. Please choose another name.`,
+        });
+      } else if (error instanceof ValidationError) {
         return res.status(400).json({ error: error.message });
       }
       if (error.message === "PPID category not found") {
@@ -121,8 +133,16 @@ class KategoriPpidController {
       await KategoriPpidService.deleteKategoriPpid(id, requesterLevelAkses);
       res.status(200).json({ message: "PPID category deleted successfully" });
     } catch (error) {
+      // KOREKSI: Tambahkan penanganan error spesifik
       if (error.message === "PPID category not found") {
         return res.status(404).json({ error: error.message });
+      }
+      // Khusus untuk delete, jika ada konten yang masih terhubung
+      if (error.name === "SequelizeForeignKeyConstraintError") {
+        return res.status(400).json({
+          error:
+            "Cannot delete category: There are still news articles associated with this category. Please reassign or delete them first.",
+        });
       }
       res.status(403).json({ error: error.message });
     }

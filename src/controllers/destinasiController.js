@@ -1,5 +1,6 @@
 // src/controllers/destinasiController.js
 const DestinasiService = require("../services/destinasiService");
+const { UniqueConstraintError, ValidationError } = require("sequelize");
 
 class DestinasiController {
   // GET all Destinasi
@@ -35,15 +36,14 @@ class DestinasiController {
       koordinat_lokasi,
       jam_operasional,
       harga_tiket,
-      jumlah_dilihat,
-      jumlah_share,
-      
       id_kategori_destinasi,
     } = req.body;
     const id_admin = req.user.id;
-    const gambar_utama = req.file
-      ? `/uploads/destinasi/${req.file.filename}`
-      : null; // Dapatkan path file yang disimpan
+    // KOREKSI UTAMA: Ambil file dari req.files karena routes menggunakan .fields()
+    const gambar_utama_path =
+      req.files && req.files["gambar_utama"] && req.files["gambar_utama"][0]
+        ? `/uploads/destinasi/gambar-utama/${req.files["gambar_utama"][0].filename}`
+        : null;
 
     try {
       const newDestinasi = await DestinasiService.createDestinasi(
@@ -53,26 +53,25 @@ class DestinasiController {
           alamat,
           koordinat_lokasi,
           jam_operasional,
-          harga_tiket,
-          jumlah_dilihat,
-          jumlah_share,
-          gambar_utama,
-          id_kategori_destinasi,
+          harga_tiket: parseFloat(harga_tiket) || null,
+          gambar_utama: gambar_utama_path,
+          id_kategori_destinasi: parseInt(id_kategori_destinasi),
           id_admin,
         },
         req.user.level_akses
       );
-      res
-        .status(201)
-        .json({
-          message: "Destinasi created successfully",
-          destinasi: newDestinasi,
-        });
+      res.status(201).json({
+        message: "Destinasi created successfully",
+        destinasi: newDestinasi,
+      });
     } catch (error) {
-      if (
-        error.name === "SequelizeValidationError" ||
-        error.name === "SequelizeUniqueConstraintError"
-      ) {
+      if (error instanceof UniqueConstraintError) {
+        return res
+          .status(400)
+          .json({
+            error: `Destinasi '${req.body.nama_destinasi}' already exists.`,
+          });
+      } else if (error instanceof ValidationError) {
         return res.status(400).json({ error: error.message });
       }
       res.status(403).json({ error: error.message });
@@ -86,9 +85,13 @@ class DestinasiController {
     const id_admin_requester = req.user.id;
     const level_akses_requester = req.user.level_akses;
 
-    // Jika ada file gambar baru yang diupload, tambahkan ke updateData
-    if (req.file) {
-      updateData.gambar_utama = `/uploads/destinasi/${req.file.filename}`;
+    // KOREKSI UTAMA: Ambil file dari req.files
+    if (
+      req.files &&
+      req.files["gambar_utama"] &&
+      req.files["gambar_utama"][0]
+    ) {
+      updateData.gambar_utama = `/uploads/destinasi/gambar-utama/${req.files["gambar_utama"][0].filename}`;
     }
 
     try {
@@ -103,7 +106,13 @@ class DestinasiController {
         destinasi: updatedDestinasi,
       });
     } catch (error) {
-      if (error.name === "SequelizeValidationError") {
+      if (error instanceof UniqueConstraintError) {
+        return res
+          .status(400)
+          .json({
+            error: `Destinasi '${req.body.nama_destinasi}' already exists.`,
+          });
+      } else if (error instanceof ValidationError) {
         return res.status(400).json({ error: error.message });
       }
       if (error.message === "Destinasi not found") {
@@ -130,7 +139,7 @@ class DestinasiController {
       if (error.message === "Destinasi not found") {
         return res.status(404).json({ error: error.message });
       }
-      res.status(403).json({ error: error.message }); // Untuk error otorisasi
+      res.status(403).json({ error: error.message });
     }
   }
 }

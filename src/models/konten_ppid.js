@@ -42,10 +42,14 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.TEXT,
         allowNull: true,
       },
+      gambar_sampul: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
       file_pdf_path: {
         // Path ke file PDF utama (misal: laporan)
         type: DataTypes.STRING,
-        allowNull: true, // Boleh null jika hanya berupa gambar di galeri
+        allowNull: false, // Boleh null jika hanya berupa gambar di galeri
       },
       tanggal_publikasi: {
         type: DataTypes.DATE,

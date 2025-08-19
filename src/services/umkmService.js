@@ -7,7 +7,8 @@ const {
   Share_Log,
   Halaman,
   Media_Galeri,
-} = require("../models"); // Pastikan semua model yang terkait di-import
+  Kategori_UMKM, // Tambahkan import model Kategori_UMKM
+} = require("../models");
 
 class UMKMService {
   static async getAllUMKM() {
@@ -19,38 +20,21 @@ class UMKMService {
             as: "adminPembuat",
             attributes: ["username", "nama_lengkap", "level_akses"],
           },
-          // { // Tambahkan include untuk Media_Galeri di sini
-          //   model: Media_Galeri,
-          //   as: "galeriUMKM",
-          //   attributes: ["path_file", "deskripsi_file", "jenis_file", "urutan_tampil"],
-          //   order: [["urutan_tampil", "ASC"]], // Urutkan media di galeri
-          // }
-          // Anda bisa uncomment ini jika ingin menyertakan relasi terkait
-          // {
-          //   model: Komentar,
-          //   as: "komentarUMKM",
-          //   attributes: ["id_komentar", "isi_komentar", "id_pengguna", "tanggal_komentar"],
-          // },
-          // {
-          //   model: Like,
-          //   as: "likeUMKM",
-          //   attributes: ["id_like", "id_pengguna"],
-          // },
-          // {
-          //   model: Media_Galeri,
-          //   as: "galeriUMKM",
-          //   attributes: ["id_media", "url_media", "tipe_media"],
-          // },
-          // {
-          //   model: Share_Log,
-          //   as: "shareUMKM",
-          //   attributes: ["id_share", "id_pengguna", "tanggal_share"],
-          // },
-          // {
-          //   model: Halaman,
-          //   as: "halamanUMKM",
-          //   attributes: ["id_halaman", "isi_halaman"],
-          // },
+          {
+            model: Kategori_UMKM,
+            as: "kategoriUMKM",
+          },
+          {
+            model: Media_Galeri,
+            as: "galeriUMKM",
+            attributes: [
+              "path_file",
+              "deskripsi_file",
+              "jenis_file",
+              "urutan_tampil",
+            ],
+            order: [["urutan_tampil", "ASC"]],
+          },
         ],
       });
       return umkm;
@@ -69,7 +53,10 @@ class UMKMService {
             attributes: ["username", "nama_lengkap", "email", "level_akses"],
           },
           {
-            // Tambahkan include untuk Media_Galeri di sini
+            model: Kategori_UMKM,
+            as: "kategoriUMKM",
+          },
+          {
             model: Media_Galeri,
             as: "galeriUMKM",
             attributes: [
@@ -78,34 +65,8 @@ class UMKMService {
               "jenis_file",
               "urutan_tampil",
             ],
-            order: [["urutan_tampil", "ASC"]], // Urutkan media di galeri
+            order: [["urutan_tampil", "ASC"]],
           },
-          // Uncomment jika ingin menyertakan relasi terkait saat mengambil detail
-          // {
-          //   model: Komentar,
-          //   as: "komentarUMKM",
-          //   attributes: ["id_komentar", "isi_komentar", "id_pengguna", "tanggal_komentar"],
-          // },
-          // {
-          //   model: Like,
-          //   as: "likeUMKM",
-          //   attributes: ["id_like", "id_pengguna"],
-          // },
-          // {
-          //   model: Media_Galeri,
-          //   as: "galeriUMKM",
-          //   attributes: ["id_media", "url_media", "tipe_media"],
-          // },
-          // {
-          //   model: Share_Log,
-          //   as: "shareUMKM",
-          //   attributes: ["id_share", "id_pengguna", "tanggal_share"],
-          // },
-          // {
-          //   model: Halaman,
-          //   as: "halamanUMKM",
-          //   attributes: ["id_halaman", "isi_halaman"],
-          // },
         ],
       });
       return umkm;
@@ -116,7 +77,6 @@ class UMKMService {
 
   static async createUMKM(umkmData, requesterLevelAkses) {
     try {
-      // Otorisasi: Hanya admin atau superadmin yang bisa membuat UMKM
       if (
         requesterLevelAkses !== "admin" &&
         requesterLevelAkses !== "superadmin"
@@ -125,7 +85,6 @@ class UMKMService {
           "Forbidden: Only Admin or Super Admin can create UMKM data."
         );
       }
-
       const newUMKM = await UMKM.create(umkmData);
       return newUMKM;
     } catch (error) {
@@ -141,14 +100,9 @@ class UMKMService {
   ) {
     try {
       const umkm = await UMKM.findByPk(id);
-
       if (!umkm) {
         throw new Error("UMKM data not found");
       }
-
-      // Otorisasi:
-      // Super Admin bisa mengedit UMKM apapun.
-      // Admin hanya bisa mengedit UMKM yang dibuatnya sendiri.
       if (
         levelAksesRequester === "admin" &&
         umkm.id_admin !== idAdminRequester
@@ -162,7 +116,6 @@ class UMKMService {
           "Forbidden: Only Admin or Super Admin can update UMKM data."
         );
       }
-
       await umkm.update(updateData);
       return umkm;
     } catch (error) {
@@ -173,14 +126,9 @@ class UMKMService {
   static async deleteUMKM(id, idAdminRequester, levelAksesRequester) {
     try {
       const umkm = await UMKM.findByPk(id);
-
       if (!umkm) {
         throw new Error("UMKM data not found");
       }
-
-      // Otorisasi:
-      // Super Admin bisa menghapus UMKM apapun.
-      // Admin hanya bisa menghapus UMKM yang dibuatnya sendiri.
       if (
         levelAksesRequester === "admin" &&
         umkm.id_admin !== idAdminRequester
@@ -194,7 +142,6 @@ class UMKMService {
           "Forbidden: Only Admin or Super Admin can delete UMKM data."
         );
       }
-
       await umkm.destroy();
       return { message: "UMKM data deleted successfully" };
     } catch (error) {

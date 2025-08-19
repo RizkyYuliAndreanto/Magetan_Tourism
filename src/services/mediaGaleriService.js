@@ -6,49 +6,12 @@ const {
   Event,
   UMKM,
   Sejarah,
-} = require("../models"); // Import semua model konten
+} = require("../models");
 
 class MediaGaleriService {
   static async getAllMediaGaleri() {
     try {
-      // Mengambil semua media galeri, dengan detail konten terkait
-      const mediaGaleri = await Media_Galeri.findAll({
-        include: [
-          // Anda bisa memilih untuk meng-include hanya model yang relevan,
-          // atau semua jika ingin melihat ke mana saja media ini terkait.
-          // Ingat, hanya satu dari 'berita', 'destinasi', 'event', 'umkm', 'sejarah' yang akan terisi untuk setiap baris.
-          {
-            model: Berita,
-            as: "berita",
-            attributes: ["id_berita", "judul"],
-            required: false, // Gunakan required: false agar baris tetap muncul meskipun tidak ada Berita terkait
-          },
-          {
-            model: Destinasi,
-            as: "destinasi",
-            attributes: ["id_destinasi", "nama_destinasi"],
-            required: false,
-          },
-          {
-            model: Event,
-            as: "event",
-            attributes: ["id_event", "nama_event"],
-            required: false,
-          },
-          {
-            model: UMKM,
-            as: "umkm",
-            attributes: ["id_umkm", "nama_umkm"],
-            required: false,
-          },
-          {
-            model: Sejarah,
-            as: "sejarah",
-            attributes: ["id_sejarah", "judul"],
-            required: false,
-          },
-        ],
-      });
+      const mediaGaleri = await Media_Galeri.findAll();
       return mediaGaleri;
     } catch (error) {
       throw new Error("Could not fetch media gallery: " + error.message);
@@ -97,9 +60,12 @@ class MediaGaleriService {
     }
   }
 
-  static async createMediaGaleri(mediaData, requesterLevelAkses) {
+  static async createMediaGaleri(
+    mediaData,
+    uploadedFiles,
+    requesterLevelAkses
+  ) {
     try {
-      // Otorisasi: Hanya admin atau superadmin yang bisa membuat media galeri
       if (
         requesterLevelAkses !== "admin" &&
         requesterLevelAkses !== "superadmin"
@@ -109,41 +75,45 @@ class MediaGaleriService {
         );
       }
 
-      // Pastikan id_konten dan tipe_konten disediakan
-      if (!mediaData.id_konten || !mediaData.tipe_konten) {
-        throw new Error("id_konten and tipe_konten are required.");
-      }
-
-      // Opsional: Validasi apakah id_konten benar-benar ada di model terkait
-      // Ini akan membuat query tambahan ke database
       let contentExists = false;
-      switch (mediaData.tipe_konten) {
-        case "berita":
-          contentExists = await Berita.findByPk(mediaData.id_konten);
-          break;
-        case "destinasi":
-          contentExists = await Destinasi.findByPk(mediaData.id_konten);
-          break;
-        case "event":
-          contentExists = await Event.findByPk(mediaData.id_konten);
-          break;
-        case "umkm":
-          contentExists = await UMKM.findByPk(mediaData.id_konten);
-          break;
-        case "sejarah":
-          contentExists = await Sejarah.findByPk(mediaData.id_konten);
-          break;
-        default:
-          throw new Error("Invalid tipe_konten provided.");
+      if (mediaData.tipe_konten && mediaData.id_konten) {
+        switch (mediaData.tipe_konten) {
+          case "berita":
+            contentExists = await Berita.findByPk(mediaData.id_konten);
+            break;
+          case "destinasi":
+            contentExists = await Destinasi.findByPk(mediaData.id_konten);
+            break;
+          case "event":
+            contentExists = await Event.findByPk(mediaData.id_konten);
+            break;
+          case "umkm":
+            contentExists = await UMKM.findByPk(mediaData.id_konten);
+            break;
+          case "sejarah":
+            contentExists = await Sejarah.findByPk(mediaData.id_konten);
+            break;
+          default:
+            throw new Error("Invalid tipe_konten provided.");
+        }
+        if (!contentExists) {
+          throw new Error(
+            `Content with ID ${mediaData.id_konten} and type ${mediaData.tipe_konten} not found.`
+          );
+        }
       }
 
-      if (!contentExists) {
-        throw new Error(
-          `Content with ID ${mediaData.id_konten} and type ${mediaData.tipe_konten} not found.`
-        );
-      }
+      // PERBAIKAN: Menggunakan map untuk membuat record yang valid
+      const mediaRecords = uploadedFiles.map((file, index) => ({
+        id_konten: mediaData.id_konten || null,
+        tipe_konten: mediaData.tipe_konten || null,
+        path_file: `/uploads/galeri/${file.filename}`,
+        deskripsi_file: mediaData.deskripsi_file[index],
+        jenis_file: file.mimetype.startsWith("image") ? "gambar" : "video",
+        urutan_tampil: mediaData.urutan_tampil[index],
+      }));
 
-      const newMedia = await Media_Galeri.create(mediaData);
+      const newMedia = await Media_Galeri.bulkCreate(mediaRecords);
       return newMedia;
     } catch (error) {
       throw new Error("Could not upload media: " + error.message);
@@ -153,7 +123,7 @@ class MediaGaleriService {
   static async updateMediaGaleri(
     id,
     updateData,
-    idAdminRequester, // Mungkin tidak diperlukan jika tidak ada id_admin di model Media_Galeri
+    idAdminRequester,
     levelAksesRequester
   ) {
     try {
@@ -163,11 +133,6 @@ class MediaGaleriService {
         throw new Error("Media not found");
       }
 
-      // Otorisasi:
-      // Karena Media_Galeri tidak memiliki id_admin langsung,
-      // kita harus otorisasi berdasarkan level_akses global atau
-      // mengecek admin dari konten asalnya (lebih kompleks).
-      // Untuk sederhana, kita asumsikan admin/superadmin bisa mengupdate media apapun.
       if (
         levelAksesRequester !== "admin" &&
         levelAksesRequester !== "superadmin"
@@ -177,6 +142,10 @@ class MediaGaleriService {
         );
       }
 
+      if (updateData.path_file === null || updateData.path_file === undefined) {
+        delete updateData.path_file;
+      }
+
       await media.update(updateData);
       return media;
     } catch (error) {
@@ -184,11 +153,7 @@ class MediaGaleriService {
     }
   }
 
-  static async deleteMediaGaleri(
-    id,
-    idAdminRequester, // Mungkin tidak diperlukan jika tidak ada id_admin di model Media_Galeri
-    levelAksesRequester
-  ) {
+  static async deleteMediaGaleri(id, idAdminRequester, levelAksesRequester) {
     try {
       const media = await Media_Galeri.findByPk(id);
 
@@ -196,8 +161,6 @@ class MediaGaleriService {
         throw new Error("Media not found");
       }
 
-      // Otorisasi:
-      // Sama seperti update, asumsikan admin/superadmin bisa menghapus media apapun.
       if (
         levelAksesRequester !== "admin" &&
         levelAksesRequester !== "superadmin"
@@ -206,15 +169,6 @@ class MediaGaleriService {
           "Forbidden: Only Admin or Super Admin can delete media."
         );
       }
-
-      // Opsional: Hapus file fisik dari server
-      // const fs = require('fs');
-      // const path = require('path');
-      // const uploadDir = path.join(__dirname, '..', '..', 'uploads'); // Sesuaikan dengan root uploads Anda
-      // const filePath = path.join(uploadDir, media.path_file.replace('/uploads/', '')); // Hapus '/uploads/' dari path
-      // if (fs.existsSync(filePath)) {
-      //   fs.unlinkSync(filePath);
-      // }
 
       await media.destroy();
       return { message: "Media deleted successfully" };

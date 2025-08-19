@@ -19,7 +19,8 @@ router.post(
   authMiddleware,
   authorize(["admin", "superadmin"]),
   upload.fields([
-    { name: "file_pdf_pengumuman", maxCount: 1 }, // Nama field untuk file PDF
+    { name: "file_pdf_pengumuman", maxCount: 1 }, // Untuk file PDF
+    { name: "sampul_pengumuman", maxCount: 1 }, // Untuk gambar sampul
   ]),
   PengumumanController.createPengumuman
 );
@@ -28,7 +29,10 @@ router.put(
   "/:id",
   authMiddleware,
   authorize(["admin", "superadmin"]),
-  upload.fields([{ name: "file_pdf_pengumuman", maxCount: 1 }]),
+  upload.fields([
+    { name: "file_pdf_pengumuman", maxCount: 1 },
+    { name: "sampul_pengumuman", maxCount: 1 },
+  ]),
   PengumumanController.updatePengumuman
 );
 
