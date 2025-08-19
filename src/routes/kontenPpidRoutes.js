@@ -7,7 +7,7 @@ const configureMulter = require("../utils/multerConfig");
 
 const router = express.Router();
 
-const upload = configureMulter(); // Gunakan instance Multer yang sama
+const upload = configureMulter();
 
 // Public routes
 router.get("/", KontenPpidController.getAllKontenPpid);
@@ -20,7 +20,8 @@ router.post(
   authorize(["admin", "superadmin"]),
   upload.fields([
     { name: "file_pdf_ppid", maxCount: 1 }, // Untuk PDF utama
-    { name: "gambar_ppid_galeri", maxCount: 10 }, // Untuk multiple gambar galeri PPID (max 10 gambar)
+    { name: "gambar_sampul_ppid", maxCount: 1 }, // Untuk gambar sampul
+
   ]),
   KontenPpidController.createKontenPpid
 );
@@ -31,7 +32,8 @@ router.put(
   authorize(["admin", "superadmin"]),
   upload.fields([
     { name: "file_pdf_ppid", maxCount: 1 }, // Jika PDF bisa diupdate
-    { name: "gambar_ppid_galeri", maxCount: 10 }, // Jika galeri juga bisa diupdate/ditambah
+    { name: "gambar_sampul_ppid", maxCount: 1 }, // Jika gambar sampul bisa diupdate
+   
   ]),
   KontenPpidController.updateKontenPpid
 );

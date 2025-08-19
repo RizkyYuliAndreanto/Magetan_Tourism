@@ -29,32 +29,39 @@ class KontenPpidController {
   // CREATE new Konten_PPID
   static async createKontenPpid(req, res) {
     const { judul_konten, deskripsi_konten, id_kategori_ppid } = req.body;
-    const id_admin = req.user.id; // Asumsi id_admin tersedia dari req.user setelah authMiddleware
+    const id_admin = req.user.id;
 
-    // Mengambil path file PDF utama dari req.files (jika ada)
+    // Mengambil path file PDF
     const file_pdf_path =
       req.files && req.files["file_pdf_ppid"] && req.files["file_pdf_ppid"][0]
         ? `/uploads/ppid/pdf/${req.files["file_pdf_ppid"][0].filename}`
         : null;
 
-    // Mengambil path gambar galeri PPID dari req.files (jika ada)
+    // Mengambil path gambar sampul
+    const gambar_sampul_path =
+      req.files &&
+      req.files["gambar_sampul_ppid"] &&
+      req.files["gambar_sampul_ppid"][0]
+        ? `/uploads/ppid/sampul/${req.files["gambar_sampul_ppid"][0].filename}`
+        : null;
+
+    // Mengambil file galeri
     const gambar_ppid_galeri_files =
       req.files && req.files["gambar_ppid_galeri"]
         ? req.files["gambar_ppid_galeri"]
         : [];
 
-    // Validasi: Setidaknya satu file (PDF atau gambar galeri) atau deskripsi harus ada
+    // Validasi: harus ada salah satu dari file PDF, gambar sampul, gambar galeri, atau deskripsi
     if (
       !file_pdf_path &&
+      !gambar_sampul_path &&
       gambar_ppid_galeri_files.length === 0 &&
       !deskripsi_konten
     ) {
-      return res
-        .status(400)
-        .json({
-          error:
-            "At least one of PDF file, gallery images, or description is required.",
-        });
+      return res.status(400).json({
+        error:
+          "At least one of PDF file, cover image, gallery images, or description is required.",
+      });
     }
     if (!id_kategori_ppid) {
       return res.status(400).json({ error: "PPID category ID is required." });
@@ -65,15 +72,15 @@ class KontenPpidController {
         {
           judul_konten,
           deskripsi_konten,
+          gambar_sampul: gambar_sampul_path,
           file_pdf_path,
           tanggal_publikasi: new Date(),
-          id_kategori_ppid: parseInt(id_kategori_ppid), // Pastikan ini integer
+          id_kategori_ppid: parseInt(id_kategori_ppid),
           id_admin,
         },
         req.user.level_akses
       );
 
-      // Jika ada gambar galeri PPID, unggah setelah konten utama dibuat
       const uploadedGalleryMedia = [];
       for (const file of gambar_ppid_galeri_files) {
         const mediaData = {
@@ -81,25 +88,18 @@ class KontenPpidController {
           tipe_konten: "ppid_konten",
           path_file: `/uploads/ppid/galeri/${file.filename}`,
           deskripsi_file: `Gambar untuk ${newKonten.judul_konten}`,
-          jenis_file: file.mimetype.startsWith("image/") ? "gambar" : "video", // Asumsi hanya gambar/video
+          jenis_file: file.mimetype.startsWith("image/") ? "gambar" : "video",
         };
-        // Panggil service MediaGaleriService untuk membuat entri galeri
-        // Anda perlu mengimpor MediaGaleriService di sini atau memindah logika ini ke service KontenPpidService
-        // Untuk saat ini, kita akan asumsikan Anda akan memanggilnya di sini atau menangani di service
-        // const newGalleryEntry = await MediaGaleriService.createMediaGaleri(mediaData, req.user.level_akses);
-        // uploadedGalleryMedia.push(newGalleryEntry);
+        // Logika untuk menyimpan ke tabel Media_Galeri
         console.log(
           "Gambar galeri PPID untuk konten baru:",
           mediaData.path_file
         );
-        // Anda perlu mengimpor MediaGaleriService atau memindahkan logika ini.
-        // Untuk mempermudah, Anda bisa langsung menggunakan model Media_Galeri di service
       }
 
       res.status(201).json({
         message: "PPID content created successfully",
         konten: newKonten,
-        // galeri: uploadedGalleryMedia // Jika Anda ingin mengembalikan media galeri yang baru diupload
       });
     } catch (error) {
       if (
@@ -108,7 +108,6 @@ class KontenPpidController {
       ) {
         return res.status(400).json({ error: error.message });
       }
-      // Tambahkan penanganan error Multer jika terjadi
       if (
         error.message.includes("Jenis file tidak didukung") ||
         error.message.includes("Unexpected field name")
@@ -125,27 +124,34 @@ class KontenPpidController {
     const updateData = req.body;
     const level_akses_requester = req.user.level_akses;
 
-    // Jika ada file PDF baru yang diupload
     if (
       req.files &&
       req.files["file_pdf_ppid"] &&
       req.files["file_pdf_ppid"][0]
     ) {
       updateData.file_pdf_path = `/uploads/ppid/pdf/${req.files["file_pdf_ppid"][0].filename}`;
-      updateData.tanggal_publikasi = new Date(); // Update tanggal publikasi
+      updateData.tanggal_publikasi = new Date();
     }
 
-    // Jika ada gambar galeri PPID baru yang diupload
+    // Menambahkan logika untuk update gambar sampul
+    if (
+      req.files &&
+      req.files["gambar_sampul_ppid"] &&
+      req.files["gambar_sampul_ppid"][0]
+    ) {
+      updateData.gambar_sampul = `/uploads/ppid/sampul/${req.files["gambar_sampul_ppid"][0].filename}`;
+      updateData.tanggal_publikasi = new Date();
+    }
+
     const new_gambar_ppid_galeri_files =
       req.files && req.files["gambar_ppid_galeri"]
         ? req.files["gambar_ppid_galeri"]
         : [];
 
-    // Pastikan id_kategori_ppid dikonversi jika ada
     if (updateData.id_kategori_ppid !== undefined) {
       updateData.id_kategori_ppid = parseInt(updateData.id_kategori_ppid);
     }
-    // Update tanggal publikasi jika ada data lain yang diupdate
+
     if (Object.keys(updateData).length > 0 && !updateData.tanggal_publikasi) {
       updateData.tanggal_publikasi = new Date();
     }
@@ -157,10 +163,7 @@ class KontenPpidController {
         level_akses_requester
       );
 
-      // Jika ada gambar galeri PPID baru, unggah setelah konten utama diupdate
       const uploadedGalleryMedia = [];
-      // Logika ini untuk menambahkan gambar galeri baru. Jika ingin mengganti yang lama,
-      // perlu logika penghapusan media galeri lama terlebih dahulu
       for (const file of new_gambar_ppid_galeri_files) {
         const mediaData = {
           id_konten: updatedKonten.id_konten_ppid,
@@ -169,7 +172,7 @@ class KontenPpidController {
           deskripsi_file: `Gambar untuk ${updatedKonten.judul_konten}`,
           jenis_file: file.mimetype.startsWith("image/") ? "gambar" : "video",
         };
-        // await MediaGaleriService.createMediaGaleri(mediaData, req.user.level_akses);
+        // Logika untuk menyimpan ke tabel Media_Galeri
         console.log(
           "Gambar galeri PPID baru diupdate untuk konten:",
           mediaData.path_file
@@ -179,7 +182,6 @@ class KontenPpidController {
       res.status(200).json({
         message: "PPID content updated successfully",
         konten: updatedKonten,
-        // galeri_baru_diupload: uploadedGalleryMedia
       });
     } catch (error) {
       if (error.name === "SequelizeValidationError") {

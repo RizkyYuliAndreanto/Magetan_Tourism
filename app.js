@@ -16,6 +16,9 @@ const strukturOrganisasiRoutes = require("./src/routes/strukturOrganisasiRoutes"
 const akomodasiRoutes = require("./src/routes/akomodasiRoutes"); // Ini penting!
 const kategoriPpidRoutes = require("./src/routes/kategoriPpidRoutes"); // Ini penting!
 const kontenPpidRoutes = require("./src/routes/kontenPpidRoutes"); // Ini penting!
+const kategoriUmkmRoutes = require("./src/routes/kategoriUmkmRoutes"); // Ini penting!
+const kategoriBudayaRoutes = require("./src/routes/kategoriBudayaRoutes"); // Ini penting!
+const budayaRoutes = require("./src/routes/budayaRoutes"); // Ini penting!
 
 const app = express();
 
@@ -48,6 +51,11 @@ app.use("/api/struktur-organisasi", strukturOrganisasiRoutes);
 app.use("/api/akomodasi", akomodasiRoutes);
 app.use("/api/kategori-ppid", kategoriPpidRoutes);
 app.use("/api/konten-ppid", kontenPpidRoutes);
+app.use("/api/kategori-umkm", kategoriUmkmRoutes);
+app.use("/api/kategori-budaya", kategoriBudayaRoutes)
+app.use("/api/budaya", budayaRoutes)
+
+
 
 
 // Middleware penanganan kesalahan umum

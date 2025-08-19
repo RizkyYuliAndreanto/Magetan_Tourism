@@ -29,9 +29,15 @@ class PengumumanController {
   // CREATE new Pengumuman
   static async createPengumuman(req, res) {
     const { judul_pengumuman, isi_pengumuman } = req.body;
-    const id_admin = req.user.id; // Asumsi id_admin tersedia dari req.user setelah authMiddleware
+    const id_admin = req.user.id;
 
-    // Mengambil path file dari req.files karena kita akan pakai upload.fields() di routes
+    // Ambil path file dari req.files
+    const sampul_pengumuman =
+      req.files &&
+      req.files["sampul_pengumuman"] &&
+      req.files["sampul_pengumuman"][0]
+        ? `/uploads/pengumuman/sampul/${req.files["sampul_pengumuman"][0].filename}`
+        : null;
     const file_pdf_path =
       req.files &&
       req.files["file_pdf_pengumuman"] &&
@@ -45,13 +51,20 @@ class PengumumanController {
         .json({ error: "PDF file for announcement is required." });
     }
 
+    if (!sampul_pengumuman) {
+      return res
+        .status(400)
+        .json({ error: "Cover image for announcement is required." });
+    }
+
     try {
       const newPengumuman = await PengumumanService.createPengumuman(
         {
           judul_pengumuman,
+          sampul_pengumuman,
           isi_pengumuman,
           file_pdf_path,
-          tanggal_publikasi: new Date(), // Set tanggal publikasi saat ini
+          tanggal_publikasi: new Date(),
           id_admin,
         },
         req.user.level_akses
@@ -61,17 +74,19 @@ class PengumumanController {
         pengumuman: newPengumuman,
       });
     } catch (error) {
-      console.error("Error di createPengumuman:", error);
+      // Penanganan error Multer
+      if (error instanceof require("multer").MulterError) {
+        return res.status(400).json({ error: error.message });
+      }
       if (
         error.name === "SequelizeValidationError" ||
         error.name === "SequelizeUniqueConstraintError"
       ) {
         return res.status(400).json({ error: error.message });
       }
-      // Tambahkan penanganan error Multer jika terjadi
       if (
         error.message.includes("Jenis file tidak didukung") ||
-        error.message.includes("Unexpected field name")
+        error.message.includes("Unexpected field")
       ) {
         return res.status(400).json({ error: error.message });
       }
@@ -93,8 +108,20 @@ class PengumumanController {
     ) {
       updateData.file_pdf_path = `/uploads/pengumuman/pdf/${req.files["file_pdf_pengumuman"][0].filename}`;
       updateData.tanggal_publikasi = new Date(); // Update tanggal publikasi jika file diubah
-    } else if (Object.keys(updateData).length > 0) {
-      // Jika ada data lain yang diupdate tanpa file baru, update tanggal publikasi juga
+    }
+
+    // If a new cover image is uploaded
+    if (
+      req.files &&
+      req.files["sampul_pengumuman"] &&
+      req.files["sampul_pengumuman"][0]
+    ) {
+      updateData.sampul_pengumuman = `/uploads/pengumuman/sampul/${req.files["sampul_pengumuman"][0].filename}`;
+      updateData.tanggal_publikasi = new Date();
+    }
+
+    // Jika ada data lain yang diupdate tanpa file baru, update tanggal publikasi juga
+    if (Object.keys(updateData).length > 0 && !updateData.tanggal_publikasi) {
       updateData.tanggal_publikasi = new Date();
     }
 

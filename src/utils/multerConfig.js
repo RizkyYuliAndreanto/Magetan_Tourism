@@ -6,9 +6,7 @@ const fs = require("fs");
 const configureMulter = () => {
   const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-      console.debug("Multer received fieldname:", file.fieldname);
       let uploadFolder = "";
-      // Tentukan folder berdasarkan nama field
       if (file.fieldname === "brosur_event") {
         uploadFolder = "event/brosur";
       } else if (file.fieldname === "gambar_event") {
@@ -18,33 +16,40 @@ const configureMulter = () => {
       } else if (file.fieldname === "gambar_produk_utama") {
         uploadFolder = "umkm/gambar-produk";
       } else if (file.fieldname === "gambar_utama") {
-        // Untuk destinasi
         uploadFolder = "destinasi/gambar-utama";
       } else if (file.fieldname === "gambar_hero_berita") {
-        // Untuk berita
         uploadFolder = "berita/gambar-hero";
-      } else if (file.fieldname === "media_galeri_file") {
+      } else if (
+        file.fieldname === "media_galeri_file" ||
+        file.fieldname === "media_galeri_files"
+      ) {
         uploadFolder = "galeri";
       } else if (file.fieldname === "foto_anggota") {
-        // BARU: Logika untuk foto_anggota
-        uploadFolder = "struktur-anggota/foto"; // Folder untuk foto anggota
+        uploadFolder = "struktur-anggota/foto";
       } else if (file.fieldname === "file_pdf_pengumuman") {
-        // BARU: Logika untuk file_pdf_pengumuman
-        uploadFolder = "pengumuman/pdf"; // Folder untuk file PDF pengumuman
+        uploadFolder = "pengumuman/pdf";
       } else if (file.fieldname === "gambar_utama_hotel") {
-        // Untuk Akomodasi
         uploadFolder = "akomodasi/gambar-utama";
+      } else if (file.fieldname === "sampul_pengumuman") {
+        uploadFolder = "pengumuman/sampul";
       } else if (file.fieldname === "file_pdf_ppid") {
-        // Untuk PPID PDF
         uploadFolder = "ppid/pdf";
       } else if (file.fieldname === "gambar_ppid_galeri") {
-        // Untuk PPID Galeri
         uploadFolder = "ppid/galeri";
       } else if (file.fieldname === "visi_misi_file") {
-        uploadFolder = "visi-misi"; // Folder untuk file visi misi (gambar/pdf)
-        
+        uploadFolder = "visi-misi";
       } else if (file.fieldname === "gambar_struktur_organisasi") {
-        uploadFolder = "struktur-organisasi"; // Folder untuk file visi misi (gambar/pdf)
+        uploadFolder = "struktur-organisasi";
+      } else if (file.fieldname === "gambar_sampul_ppid") {
+        uploadFolder = "ppid/sampul";
+      } else if (file.fieldname === "gambar_sampul") {
+        uploadFolder = "umkm/gambar-sampul";
+      } else if (file.fieldname === "gambar_sampul_kategori_umkm") {
+        uploadFolder = "umkm/kategori-sampul";
+      } else if (file.fieldname === "gambar_sampul_kategori_budaya") {
+        uploadFolder = "budaya/kategori-sampul";
+      } else if (file.fieldname === "gambar_budaya") {
+        uploadFolder = "budaya/gambar";
       } else {
         return cb(new Error("Unexpected field name for file upload!"), false);
       }
@@ -81,9 +86,9 @@ const configureMulter = () => {
       "image/tiff",
       "image/jpg",
       "application/pdf",
-      "video/mp4", // Ditambahkan untuk video
-      "video/webm", // Ditambahkan untuk video
-      "video/ogg", // Ditambahkan untuk video (jika diperlukan)
+      "video/mp4",
+      "video/webm",
+      "video/ogg",
     ];
 
     if (allowedMimes.includes(file.mimetype)) {
@@ -102,7 +107,7 @@ const configureMulter = () => {
     storage: storage,
     fileFilter: fileFilter,
     limits: {
-      fileSize: 1024 * 1024 * 50, // Batasi ukuran file hingga 50MB (contoh, tingkatkan jika perlu untuk video)
+      fileSize: 1024 * 1024 * 50,
     },
   });
 };
