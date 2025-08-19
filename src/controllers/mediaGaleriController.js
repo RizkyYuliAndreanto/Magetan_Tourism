@@ -1,5 +1,6 @@
 // src/controllers/mediaGaleriController.js
 const MediaGaleriService = require("../services/mediaGaleriService");
+const { UniqueConstraintError, ValidationError } = require("sequelize");
 
 class MediaGaleriController {
   // GET all Media_Galeri
@@ -26,7 +27,7 @@ class MediaGaleriController {
     }
   }
 
-  // CREATE new Media_Galeri
+  // CREATE new Media_Galeri (mendukung multiple file)
   static async createMediaGaleri(req, res) {
     const {
       id_konten,
@@ -36,59 +37,73 @@ class MediaGaleriController {
       urutan_tampil,
     } = req.body;
 
-    // KOREKSI UTAMA: Akses file dari req.file, bukan req.files
-    const path_file = req.file // req.file adalah objek tunggal jika menggunakan .single()
-      ? `/uploads/galeri/${req.file.filename}` // Path sesuai multerConfig
-      : null;
+    const uploadedFiles = req.files;
 
-    // Validasi dasar: file harus ada
-    if (!path_file) {
+    if (!uploadedFiles || uploadedFiles.length === 0) {
       return res.status(400).json({ error: "File media is required." });
     }
 
     try {
-      const newMedia = await MediaGaleriService.createMediaGaleri(
-        {
-          id_konten: parseInt(id_konten),
-          tipe_konten,
-          path_file,
-          deskripsi_file,
-          jenis_file,
-          urutan_tampil: parseInt(urutan_tampil) || 0,
-        },
+      // PERBAIKAN: Mengirim data ke service dalam bentuk yang terstruktur
+      const mediaData = {
+        id_konten: parseInt(id_konten),
+        tipe_konten,
+        deskripsi_file: Array.isArray(deskripsi_file)
+          ? deskripsi_file
+          : [deskripsi_file],
+        jenis_file: Array.isArray(jenis_file) ? jenis_file : [jenis_file],
+        urutan_tampil: Array.isArray(urutan_tampil)
+          ? urutan_tampil.map(Number)
+          : [parseInt(urutan_tampil)],
+      };
+
+      // PERBAIKAN: Menambahkan validasi tambahan untuk memastikan jumlah metadata cocok dengan jumlah file
+      if (
+        uploadedFiles.length !== mediaData.deskripsi_file.length ||
+        uploadedFiles.length !== mediaData.jenis_file.length ||
+        uploadedFiles.length !== mediaData.urutan_tampil.length
+      ) {
+        return res
+          .status(400)
+          .json({
+            error: "Metadata tidak lengkap untuk setiap file yang diunggah.",
+          });
+      }
+
+      const newMediaList = await MediaGaleriService.createMediaGaleri(
+        mediaData,
+        uploadedFiles,
         req.user.level_akses
       );
       res.status(201).json({
         message: "Media uploaded successfully",
-        media: newMedia,
+        media: newMediaList,
       });
     } catch (error) {
       if (
-        error.name === "SequelizeValidationError" ||
-        error.name === "SequelizeUniqueConstraintError"
+        error instanceof UniqueConstraintError ||
+        error instanceof ValidationError
       ) {
         return res.status(400).json({ error: error.message });
       }
-      if (
-        error.message.includes("Jenis file tidak didukung") ||
-        error.message.includes("Unexpected field name")
-      ) {
+      if (error.message.includes("Jenis file tidak didukung")) {
         return res.status(400).json({ error: error.message });
       }
       res.status(403).json({ error: error.message });
     }
   }
 
-  // UPDATE Media_Galeri by ID
+  // UPDATE Media_Galeri by ID (tetap single file)
   static async updateMediaGaleri(req, res) {
     const { id } = req.params;
     const updateData = req.body;
     const level_akses_requester = req.user.level_akses;
 
-    // KOREKSI UTAMA: Akses file dari req.file, bukan req.files
     if (req.file) {
-      // Jika ada file baru yang diupload untuk mengganti
       updateData.path_file = `/uploads/galeri/${req.file.filename}`;
+      updateData.jenis_file = req.file.mimetype.startsWith("image")
+        ? "gambar"
+        : "video";
     }
 
     if (updateData.urutan_tampil) {
@@ -110,16 +125,13 @@ class MediaGaleriController {
         media: updatedMedia,
       });
     } catch (error) {
-      if (error.name === "SequelizeValidationError") {
+      if (error instanceof ValidationError) {
         return res.status(400).json({ error: error.message });
       }
       if (error.message === "Media not found") {
         return res.status(404).json({ error: error.message });
       }
-      if (
-        error.message.includes("Jenis file tidak didukung") ||
-        error.message.includes("Unexpected field name")
-      ) {
+      if (error.message.includes("Jenis file tidak didukung")) {
         return res.status(400).json({ error: error.message });
       }
       res.status(403).json({ error: error.message });

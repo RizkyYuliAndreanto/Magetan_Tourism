@@ -21,6 +21,7 @@ router.post(
   authorize(["admin", "superadmin"]),
   upload.fields([
     { name: "gambar_produk_utama", maxCount: 1 }, // Nama field sesuai model
+    { name: "gambar_sampul", maxCount: 1 },
   ]),
   UMKMController.createUMKM
 );
@@ -31,6 +32,7 @@ router.put(
   authorize(["admin", "superadmin"]),
   upload.fields([
     { name: "gambar_produk_utama", maxCount: 1 }, // Nama field sesuai model
+    { name: "gambar_sampul", maxCount: 1 },
   ]),
   UMKMController.updateUMKM
 );

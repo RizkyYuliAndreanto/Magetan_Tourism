@@ -13,6 +13,10 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
+      sampul_pengumuman: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
       isi_pengumuman: {
         type: Sequelize.TEXT,
         allowNull: true,

@@ -9,7 +9,7 @@ const validateAdminCreation = (req, res, next) => {
     nama_lengkap: Joi.string().required(),
     email: Joi.string().email().required(),
     level_akses: Joi.string()
-      .valid("superadmin", "editor", "contributor") // Sesuaikan jika ENUM Anda berbeda
+      .valid("superadmin", "editor", "contributor")
       .required(),
   });
   const { error } = schema.validate(req.body);
@@ -33,18 +33,17 @@ const validateAdminLogin = (req, res, next) => {
 
 // --- Pengunjung Validators ---
 const validatePengunjungRegistration = (req, res, next) => {
-  // Skema ini harus sesuai dengan data yang dikirim dari frontend dan yang diharapkan controller
-  const schema = Joi.object({
-    username: Joi.string().alphanum().min(3).max(30).required(),
-    password: Joi.string().min(6).required(),
-    nama_lengkap: Joi.string().required(),
-    email: Joi.string().email().required(),
-  });
-  const { error } = schema.validate(req.body);
-  if (error) {
-    return res.status(400).json({ message: error.details[0].message });
-  }
-  next();
+  const schema = Joi.object({
+    username: Joi.string().alphanum().min(3).max(30).required(),
+    password: Joi.string().min(6).required(),
+    nama_lengkap: Joi.string().required(),
+    email: Joi.string().email().required(),
+  });
+  const { error } = schema.validate(req.body);
+  if (error) {
+    return res.status(400).json({ message: error.details[0].message });
+  }
+  next();
 };
 // --- Kategori Berita Validators ---
 const validateKategoriBeritaCreation = (req, res, next) => {
@@ -78,7 +77,7 @@ const validateBeritaCreation = (req, res, next) => {
     teras_berita: Joi.string().min(10).required(),
     isi_berita: Joi.string().min(20).required(),
     penutup_berita: Joi.string().optional().allow(null, ""),
-    tanggal_publikasi: Joi.date().iso().required(), // Format ISO 8601
+    tanggal_publikasi: Joi.date().iso().required(),
     koordinat_lokasi: Joi.string()
       .pattern(
         /^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$/
@@ -94,8 +93,6 @@ const validateBeritaCreation = (req, res, next) => {
     jumlah_dilihat: Joi.number().integer().min(0).optional().default(0),
     jumlah_share: Joi.number().integer().min(0).optional().default(0),
     id_kategori: Joi.number().integer().positive().required(),
-    // gambar_hero_berita divalidasi oleh Multer dan keberadaan path di controller
-    // id_admin diambil dari req.user, tidak divalidasi di sini
   });
   const { error } = schema.validate(req.body);
   if (error) {
@@ -151,8 +148,6 @@ const validateDestinasiCreation = (req, res, next) => {
     jumlah_dilihat: Joi.number().integer().min(0).optional().default(0),
     jumlah_share: Joi.number().integer().min(0).optional().default(0),
     id_kategori_destinasi: Joi.number().integer().positive().required(),
-    // gambar_utama divalidasi oleh Multer
-    // id_admin diambil dari req.user
   });
   const { error } = schema.validate(req.body);
   if (error) {
@@ -191,7 +186,7 @@ const validateEventCreation = (req, res, next) => {
     nama_event: Joi.string().min(3).max(255).required(),
     deskripsi_event: Joi.string().min(10).required(),
     tanggal_mulai: Joi.date().iso().required(),
-    tanggal_selesai: Joi.date().iso().required().min(Joi.ref("tanggal_mulai")), // tanggal_selesai harus setelah atau sama dengan tanggal_mulai
+    tanggal_selesai: Joi.date().iso().required().min(Joi.ref("tanggal_mulai")),
     lokasi_event: Joi.string().min(5).required(),
     koordinat_lokasi: Joi.string()
       .pattern(
@@ -201,8 +196,6 @@ const validateEventCreation = (req, res, next) => {
       .allow(null, ""),
     jumlah_dilihat: Joi.number().integer().min(0).optional().default(0),
     jumlah_share: Joi.number().integer().min(0).optional().default(0),
-    // gambar_event dan brosur_event divalidasi oleh Multer
-    // id_admin diambil dari req.user
   });
   const { error } = schema.validate(req.body);
   if (error) {
@@ -273,11 +266,10 @@ const validateMediaGaleriCreation = (req, res, next) => {
         "akomodasi",
         "ppid_konten"
       )
-      .required(), // Sesuaikan dengan ENUM di model Media_Galeri
+      .required(),
     deskripsi_file: Joi.string().max(255).optional().allow(null, ""),
     jenis_file: Joi.string().valid("gambar", "video").required(),
     urutan_tampil: Joi.number().integer().min(0).optional().default(0),
-    // path_file divalidasi keberadaan di controller
   });
   const { error } = schema.validate(req.body);
   if (error) {
@@ -318,8 +310,6 @@ const validateStrukturAnggotaCreation = (req, res, next) => {
     jabatan: Joi.string().min(3).max(100).required(),
     deskripsi_tugas: Joi.string().optional().allow(null, ""),
     urutan_tampilan: Joi.number().integer().min(0).optional().default(0),
-    // foto_anggota divalidasi oleh Multer
-    // id_admin diambil dari req.user
   });
   const { error } = schema.validate(req.body);
   if (error) {
@@ -346,10 +336,7 @@ const validateStrukturAnggotaUpdate = (req, res, next) => {
 const validatePengumumanCreation = (req, res, next) => {
   const schema = Joi.object({
     judul_pengumuman: Joi.string().min(5).max(255).required(),
-    isi_pengumuman: Joi.string().optional().allow(null, ""), // Opsional di model
-    // file_pdf_path divalidasi oleh Multer dan keberadaan di controller
-    // tanggal_publikasi otomatis
-    // id_admin diambil dari req.user
+    isi_pengumuman: Joi.string().optional().allow(null, ""),
   });
   const { error } = schema.validate(req.body);
   if (error) {
@@ -373,11 +360,7 @@ const validatePengumumanUpdate = (req, res, next) => {
 // --- Visi Misi Validators ---
 const validateVisiMisiCreation = (req, res, next) => {
   const schema = Joi.object({
-    // visi_misi_file_path divalidasi oleh Multer dan controller
-    // tipe_file_visi_misi divalidasi oleh controller berdasarkan mime
-    deskripsi: Joi.string().min(10).optional().allow(null, ""), // Kolom teks deskripsi
-    // tanggal_pembaruan otomatis
-    // id_admin diambil dari req.user
+    deskripsi: Joi.string().min(10).optional().allow(null, ""),
   });
   const { error } = schema.validate(req.body);
   if (error) {
@@ -402,9 +385,6 @@ const validateStrukturOrganisasiCreation = (req, res, next) => {
   const schema = Joi.object({
     judul_struktur: Joi.string().min(3).max(255).required(),
     deskripsi_struktur: Joi.string().optional().allow(null, ""),
-    // gambar_struktur_path divalidasi oleh Multer dan controller
-    // tanggal_pembaruan otomatis
-    // id_admin diambil dari req.user
   });
   const { error } = schema.validate(req.body);
   if (error) {
@@ -458,9 +438,6 @@ const validateKontenPpidCreation = (req, res, next) => {
     judul_konten: Joi.string().min(5).max(255).required(),
     deskripsi_konten: Joi.string().optional().allow(null, ""),
     id_kategori_ppid: Joi.number().integer().positive().required(),
-    // file_pdf_path dan gambar_ppid_galeri divalidasi keberadaan di controller setelah Multer
-    // tanggal_publikasi otomatis
-    // id_admin diambil dari req.user
   });
   const { error } = schema.validate(req.body);
   if (error) {
@@ -490,12 +467,12 @@ module.exports = {
   validateKategoriBeritaUpdate,
   validateBeritaCreation,
   validateBeritaUpdate,
-  validateDestinasiCreation, // Sudah ada di kode sebelumnya
-  validateDestinasiUpdate, // Sudah ada di kode sebelumnya
+  validateDestinasiCreation,
+  validateDestinasiUpdate,
   validateEventCreation,
   validateEventUpdate,
-  validateKategoriDestinasiCreation, // BARU
-  validateKategoriDestinasiUpdate, // BARU
+  validateKategoriDestinasiCreation,
+  validateKategoriDestinasiUpdate,
   validateMediaGaleriCreation,
   validateMediaGaleriUpdate,
   validateStrukturAnggotaCreation,

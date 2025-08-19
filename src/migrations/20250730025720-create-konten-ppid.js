@@ -19,6 +19,10 @@ module.exports = {
         type: Sequelize.TEXT,
         allowNull: true, // KOREKSI: Tambahkan allowNull
       },
+      gambar_sampul: {
+        type: Sequelize.STRING,
+        allowNull: true, // KOREKSI: Tambahkan allowNull
+      },
       file_pdf_path: {
         type: Sequelize.STRING,
         allowNull: true, // KOREKSI: Tambahkan allowNull
