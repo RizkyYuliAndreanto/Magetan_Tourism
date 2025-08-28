@@ -3,7 +3,7 @@ const { Sejarah, Admin, Media_Galeri } = require("../models"); // Pastikan path 
 
 class SejarahService {
   static async getAllSejarah() {
-    // Perbaikan: capital 'S' pada 'sejarah'
+  
     try {
       const sejarah = await Sejarah.findAll({
         include: [
@@ -13,7 +13,7 @@ class SejarahService {
             attributes: ["username", "nama_lengkap", "level_akses"],
           },
           {
-            // Tambahkan include untuk Media_Galeri di sini
+            
             model: Media_Galeri,
             as: "galeriSejarah",
             attributes: [
@@ -22,7 +22,7 @@ class SejarahService {
               "jenis_file",
               "urutan_tampil",
             ],
-            order: [["urutan_tampil", "ASC"]], // Urutkan media di galeri
+            order: [["urutan_tampil", "ASC"]], 
           },
         ],
       });

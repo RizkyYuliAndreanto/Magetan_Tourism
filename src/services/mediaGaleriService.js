@@ -6,6 +6,8 @@ const {
   Event,
   UMKM,
   Sejarah,
+  Budaya,
+  Akomodasi,
 } = require("../models");
 
 class MediaGaleriService {
@@ -52,6 +54,18 @@ class MediaGaleriService {
             attributes: ["id_sejarah", "judul"],
             required: false,
           },
+          {
+            model: Akomodasi,
+            as: "akomodasi",
+            attributes: ["id_akomodasi", "nama_hotel"],
+            required: false,
+          },
+          {
+            model: Budaya,
+            as: "budaya",
+            attributes: ["id_budaya", "judul_budaya"],
+            required: false,
+          },
         ],
       });
       return mediaGaleri;
@@ -93,6 +107,12 @@ class MediaGaleriService {
           case "sejarah":
             contentExists = await Sejarah.findByPk(mediaData.id_konten);
             break;
+          case "budaya":
+            contentExists = await Budaya.findByPk(mediaData.id_konten);
+            break;
+          case "akomodasi":
+            contentExists = await Akomodasi.findByPk(mediaData.id_konten);
+            break;
           default:
             throw new Error("Invalid tipe_konten provided.");
         }
@@ -103,14 +123,14 @@ class MediaGaleriService {
         }
       }
 
-      // PERBAIKAN: Menggunakan map untuk membuat record yang valid
-      const mediaRecords = uploadedFiles.map((file, index) => ({
+      // PERBAIKAN: Gunakan data yang dikirim per file dari controller
+      const mediaRecords = uploadedFiles.map((file) => ({
         id_konten: mediaData.id_konten || null,
         tipe_konten: mediaData.tipe_konten || null,
         path_file: `/uploads/galeri/${file.filename}`,
-        deskripsi_file: mediaData.deskripsi_file[index],
+        deskripsi_file: mediaData.deskripsi_file,
         jenis_file: file.mimetype.startsWith("image") ? "gambar" : "video",
-        urutan_tampil: mediaData.urutan_tampil[index],
+        urutan_tampil: mediaData.urutan_tampil,
       }));
 
       const newMedia = await Media_Galeri.bulkCreate(mediaRecords);
@@ -142,6 +162,42 @@ class MediaGaleriService {
         );
       }
 
+      // Pastikan id_konten dan tipe_konten divalidasi jika ada di updateData
+      if (updateData.tipe_konten && updateData.id_konten) {
+        let contentExists = false;
+        switch (updateData.tipe_konten) {
+          case "berita":
+            contentExists = await Berita.findByPk(updateData.id_konten);
+            break;
+          case "destinasi":
+            contentExists = await Destinasi.findByPk(updateData.id_konten);
+            break;
+          case "event":
+            contentExists = await Event.findByPk(updateData.id_konten);
+            break;
+          case "umkm":
+            contentExists = await UMKM.findByPk(updateData.id_konten);
+            break;
+          case "sejarah":
+            contentExists = await Sejarah.findByPk(updateData.id_konten);
+            break;
+          case "budaya":
+            contentExists = await Budaya.findByPk(updateData.id_konten);
+            break;
+          case "akomodasi":
+            contentExists = await Akomodasi.findByPk(updateData.id_konten);
+            break;
+          default:
+            throw new Error("Invalid tipe_konten provided for update.");
+        }
+        if (!contentExists) {
+          throw new Error(
+            `Content with ID ${updateData.id_konten} and type ${updateData.tipe_konten} not found for update.`
+          );
+        }
+      }
+
+      // Pastikan path_file tidak diupdate jika tidak ada file baru
       if (updateData.path_file === null || updateData.path_file === undefined) {
         delete updateData.path_file;
       }

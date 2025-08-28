@@ -15,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
       id_kategori: {
         allowNull: false,
         autoIncrement: true,
-        primaryKey: true,
+        primaryKey: true, 
         type: DataTypes.INTEGER,
       },
       nama_kategori: {

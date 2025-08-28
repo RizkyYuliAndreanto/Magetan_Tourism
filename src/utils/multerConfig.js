@@ -4,53 +4,37 @@ const path = require("path");
 const fs = require("fs");
 
 const configureMulter = () => {
+  // Peta dari nama field ke folder upload
+  const uploadFolders = {
+    gambar_akomodasi: "akomodasi/gambar-utama",
+    brosur_event: "event/brosur",
+    gambar_event: "event/gambar-event",
+    gambar_sejarah: "sejarah/gambar",
+    gambar_produk_utama: "umkm/gambar-produk",
+    gambar_utama: "destinasi/gambar-utama",
+    gambar_hero_berita: "berita/gambar-hero",
+    media_galeri_file: "galeri",
+    media_galeri_files: "galeri",
+    foto_anggota: "struktur-anggota/foto",
+    file_pdf_pengumuman: "pengumuman/pdf",
+    gambar_utama_hotel: "akomodasi/gambar-utama",
+    sampul_pengumuman: "pengumuman/sampul",
+    file_pdf_ppid: "ppid/pdf",
+    gambar_ppid_galeri: "ppid/galeri",
+    visi_misi_file: "visi-misi",
+    gambar_struktur_organisasi: "struktur-organisasi",
+    gambar_sampul_ppid: "ppid/sampul",
+    gambar_sampul: "umkm/gambar-sampul",
+    gambar_sampul_kategori_umkm: "umkm/kategori-sampul",
+    gambar_sampul_kategori_budaya: "budaya/kategori-sampul",
+    gambar_budaya: "budaya/gambar",
+  };
+
   const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-      let uploadFolder = "";
-      if (file.fieldname === "brosur_event") {
-        uploadFolder = "event/brosur";
-      } else if (file.fieldname === "gambar_event") {
-        uploadFolder = "event/gambar-event";
-      } else if (file.fieldname === "gambar_sejarah") {
-        uploadFolder = "sejarah/gambar";
-      } else if (file.fieldname === "gambar_produk_utama") {
-        uploadFolder = "umkm/gambar-produk";
-      } else if (file.fieldname === "gambar_utama") {
-        uploadFolder = "destinasi/gambar-utama";
-      } else if (file.fieldname === "gambar_hero_berita") {
-        uploadFolder = "berita/gambar-hero";
-      } else if (
-        file.fieldname === "media_galeri_file" ||
-        file.fieldname === "media_galeri_files"
-      ) {
-        uploadFolder = "galeri";
-      } else if (file.fieldname === "foto_anggota") {
-        uploadFolder = "struktur-anggota/foto";
-      } else if (file.fieldname === "file_pdf_pengumuman") {
-        uploadFolder = "pengumuman/pdf";
-      } else if (file.fieldname === "gambar_utama_hotel") {
-        uploadFolder = "akomodasi/gambar-utama";
-      } else if (file.fieldname === "sampul_pengumuman") {
-        uploadFolder = "pengumuman/sampul";
-      } else if (file.fieldname === "file_pdf_ppid") {
-        uploadFolder = "ppid/pdf";
-      } else if (file.fieldname === "gambar_ppid_galeri") {
-        uploadFolder = "ppid/galeri";
-      } else if (file.fieldname === "visi_misi_file") {
-        uploadFolder = "visi-misi";
-      } else if (file.fieldname === "gambar_struktur_organisasi") {
-        uploadFolder = "struktur-organisasi";
-      } else if (file.fieldname === "gambar_sampul_ppid") {
-        uploadFolder = "ppid/sampul";
-      } else if (file.fieldname === "gambar_sampul") {
-        uploadFolder = "umkm/gambar-sampul";
-      } else if (file.fieldname === "gambar_sampul_kategori_umkm") {
-        uploadFolder = "umkm/kategori-sampul";
-      } else if (file.fieldname === "gambar_sampul_kategori_budaya") {
-        uploadFolder = "budaya/kategori-sampul";
-      } else if (file.fieldname === "gambar_budaya") {
-        uploadFolder = "budaya/gambar";
-      } else {
+      const uploadFolder = uploadFolders[file.fieldname];
+
+      if (!uploadFolder) {
         return cb(new Error("Unexpected field name for file upload!"), false);
       }
 
@@ -70,7 +54,7 @@ const configureMulter = () => {
     filename: (req, file, cb) => {
       cb(
         null,
-        file.fieldname + "-" + Date.now() + path.extname(file.originalname)
+        `${file.fieldname}-${Date.now()}${path.extname(file.originalname)}`
       );
     },
   });

@@ -29,14 +29,7 @@ class MediaGaleriController {
 
   // CREATE new Media_Galeri (mendukung multiple file)
   static async createMediaGaleri(req, res) {
-    const {
-      id_konten,
-      tipe_konten,
-      deskripsi_file,
-      jenis_file,
-      urutan_tampil,
-    } = req.body;
-
+    const { id_konten, tipe_konten, deskripsi_file, urutan_tampil } = req.body;
     const uploadedFiles = req.files;
 
     if (!uploadedFiles || uploadedFiles.length === 0) {
@@ -44,31 +37,13 @@ class MediaGaleriController {
     }
 
     try {
-      // PERBAIKAN: Mengirim data ke service dalam bentuk yang terstruktur
+      // Pastikan id_konten dan urutan_tampil di-parse ke integer jika ada
       const mediaData = {
-        id_konten: parseInt(id_konten),
-        tipe_konten,
-        deskripsi_file: Array.isArray(deskripsi_file)
-          ? deskripsi_file
-          : [deskripsi_file],
-        jenis_file: Array.isArray(jenis_file) ? jenis_file : [jenis_file],
-        urutan_tampil: Array.isArray(urutan_tampil)
-          ? urutan_tampil.map(Number)
-          : [parseInt(urutan_tampil)],
+        id_konten: id_konten ? parseInt(id_konten) : null,
+        tipe_konten: tipe_konten || null,
+        deskripsi_file: deskripsi_file || null,
+        urutan_tampil: urutan_tampil ? parseInt(urutan_tampil) : 0,
       };
-
-      // PERBAIKAN: Menambahkan validasi tambahan untuk memastikan jumlah metadata cocok dengan jumlah file
-      if (
-        uploadedFiles.length !== mediaData.deskripsi_file.length ||
-        uploadedFiles.length !== mediaData.jenis_file.length ||
-        uploadedFiles.length !== mediaData.urutan_tampil.length
-      ) {
-        return res
-          .status(400)
-          .json({
-            error: "Metadata tidak lengkap untuk setiap file yang diunggah.",
-          });
-      }
 
       const newMediaList = await MediaGaleriService.createMediaGaleri(
         mediaData,
@@ -86,7 +61,10 @@ class MediaGaleriController {
       ) {
         return res.status(400).json({ error: error.message });
       }
-      if (error.message.includes("Jenis file tidak didukung")) {
+      if (
+        error.message.includes("Jenis file tidak didukung") ||
+        error.message.includes("Content with ID")
+      ) {
         return res.status(400).json({ error: error.message });
       }
       res.status(403).json({ error: error.message });
@@ -131,7 +109,10 @@ class MediaGaleriController {
       if (error.message === "Media not found") {
         return res.status(404).json({ error: error.message });
       }
-      if (error.message.includes("Jenis file tidak didukung")) {
+      if (
+        error.message.includes("Jenis file tidak didukung") ||
+        error.message.includes("Content with ID")
+      ) {
         return res.status(400).json({ error: error.message });
       }
       res.status(403).json({ error: error.message });
