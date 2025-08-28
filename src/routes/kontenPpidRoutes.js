@@ -19,9 +19,9 @@ router.post(
   authMiddleware,
   authorize(["admin", "superadmin"]),
   upload.fields([
-    { name: "file_pdf_ppid", maxCount: 1 }, // Untuk PDF utama
-    { name: "gambar_sampul_ppid", maxCount: 1 }, // Untuk gambar sampul
-
+    { name: "file_pdf_ppid", maxCount: 1 },
+    { name: "gambar_sampul_ppid", maxCount: 1 },
+    // PERBAIKAN: Hapus field galeri
   ]),
   KontenPpidController.createKontenPpid
 );
@@ -31,9 +31,9 @@ router.put(
   authMiddleware,
   authorize(["admin", "superadmin"]),
   upload.fields([
-    { name: "file_pdf_ppid", maxCount: 1 }, // Jika PDF bisa diupdate
-    { name: "gambar_sampul_ppid", maxCount: 1 }, // Jika gambar sampul bisa diupdate
-   
+    { name: "file_pdf_ppid", maxCount: 1 },
+    { name: "gambar_sampul_ppid", maxCount: 1 },
+    // PERBAIKAN: Hapus field galeri
   ]),
   KontenPpidController.updateKontenPpid
 );

@@ -7,7 +7,7 @@ const {
   Share_Log,
   Halaman,
   Media_Galeri,
-  Kategori_UMKM, // Tambahkan import model Kategori_UMKM
+  Kategori_UMKM,
 } = require("../models");
 
 class UMKMService {
@@ -22,7 +22,7 @@ class UMKMService {
           },
           {
             model: Kategori_UMKM,
-            as: "kategoriUMKM",
+            as: "kategoriUMKM", // samakan dengan model
           },
           {
             model: Media_Galeri,
@@ -33,8 +33,10 @@ class UMKMService {
               "jenis_file",
               "urutan_tampil",
             ],
-            order: [["urutan_tampil", "ASC"]],
           },
+        ],
+        order: [
+          [{ model: Media_Galeri, as: "galeriUMKM" }, "urutan_tampil", "ASC"],
         ],
       });
       return umkm;
@@ -54,7 +56,7 @@ class UMKMService {
           },
           {
             model: Kategori_UMKM,
-            as: "kategoriUMKM",
+            as: "kategoriUmkm", // Perbaikan di sini
           },
           {
             model: Media_Galeri,
