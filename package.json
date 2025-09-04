@@ -4,7 +4,12 @@
   "main": "server.js",
   "scripts": {
     "dev": "nodemon server.js",
-    "test": "dotenv -e .env.test jest"
+    "test": "dotenv -e .env.test jest",
+    "migrate": "sequelize db:migrate",
+    "seed": "sequelize db:seed",
+    "migrate:undo": "sequelize db:migrate:undo",
+    "drop": "sequelize db:drop",
+    "create": "sequelize db:create"
   },
   "keywords": [],
   "author": "",
@@ -29,6 +34,7 @@
     "mysql2": "^3.14.2",
     "nodemailer": "^7.0.5",
     "sequelize": "^6.37.7",
+    "sharp": "^0.34.3",
     "xss": "^1.0.15"
   },
   "devDependencies": {

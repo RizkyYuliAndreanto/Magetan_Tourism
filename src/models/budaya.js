@@ -37,6 +37,15 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
+      // Tambahkan definisi jenis_budaya di sini
+      jenis_budaya: {
+        type: DataTypes.ENUM(
+          "Cagar Budaya",
+          "Non Cagar Budaya",
+          "Objek Pengembangan Budaya"
+        ),
+        allowNull: false,
+      },
       gambar_budaya: {
         type: DataTypes.STRING,
         allowNull: true,

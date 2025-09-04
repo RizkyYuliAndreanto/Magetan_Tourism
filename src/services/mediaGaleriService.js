@@ -123,15 +123,19 @@ class MediaGaleriService {
         }
       }
 
-      // PERBAIKAN: Gunakan data yang dikirim per file dari controller
-      const mediaRecords = uploadedFiles.map((file) => ({
+      const mediaRecords = uploadedFiles.map((file, idx) => ({
         id_konten: mediaData.id_konten || null,
         tipe_konten: mediaData.tipe_konten || null,
         path_file: `/uploads/galeri/${file.filename}`,
-        deskripsi_file: mediaData.deskripsi_file,
+        deskripsi_file: Array.isArray(mediaData.deskripsi_file)
+          ? mediaData.deskripsi_file[idx] || ""
+          : mediaData.deskripsi_file || "",
         jenis_file: file.mimetype.startsWith("image") ? "gambar" : "video",
-        urutan_tampil: mediaData.urutan_tampil,
+        urutan_tampil: mediaData.urutan_tampil || 0,
       }));
+
+      // Tambahkan console.log untuk debugging
+      console.log("Records to be inserted:", mediaRecords);
 
       const newMedia = await Media_Galeri.bulkCreate(mediaRecords);
       return newMedia;
