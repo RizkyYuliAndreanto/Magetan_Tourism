@@ -13,10 +13,7 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      jenis_budaya: {
-        type: Sequelize.ENUM("Cagar Budaya", "Non Cagar Budaya","Objek Pengembangan Budaya"),
-        allowNull: false,
-      },
+      
       gambar_budaya: {
         type: Sequelize.STRING,
         allowNull: true,
