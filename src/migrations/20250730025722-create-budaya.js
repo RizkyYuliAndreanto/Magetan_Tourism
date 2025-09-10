@@ -13,6 +13,7 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
+      
       gambar_budaya: {
         type: Sequelize.STRING,
         allowNull: true,

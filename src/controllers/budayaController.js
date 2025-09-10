@@ -25,7 +25,8 @@ class BudayaController {
   }
 
   static async createBudaya(req, res) {
-    const { judul_budaya, deskripsi_budaya, id_kategori_budaya } = req.body;
+    const { judul_budaya, deskripsi_budaya, id_kategori_budaya } =
+      req.body;
     const id_admin = req.user.id;
 
     const gambar_budaya_path =
@@ -37,6 +38,7 @@ class BudayaController {
       const newBudaya = await BudayaService.createBudaya(
         {
           judul_budaya,
+          
           gambar_budaya: gambar_budaya_path,
           deskripsi_budaya,
           id_kategori_budaya,
@@ -58,6 +60,7 @@ class BudayaController {
 
   static async updateBudaya(req, res) {
     const { id } = req.params;
+    
     const updateData = req.body;
     const id_admin_requester = req.user.id;
     const level_akses_requester = req.user.level_akses;

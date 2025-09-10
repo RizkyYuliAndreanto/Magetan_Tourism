@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
@@ -15,6 +15,11 @@ module.exports = {
       deskripsi_kategori: {
         type: Sequelize.TEXT,
       },
+      // Tambahkan kolom baru untuk sampul
+      sampul_kategori: {
+        type: Sequelize.STRING,
+        allowNull: true, // Biarkan null jika tidak ada sampul
+      },
       created_at: {
         allowNull: false,
         type: Sequelize.DATE,
@@ -26,6 +31,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Kategori_Destinasis');
-  }
+    await queryInterface.dropTable("Kategori_Destinasis");
+  },
 };

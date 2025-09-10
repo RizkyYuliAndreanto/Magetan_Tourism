@@ -37,6 +37,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
+     
       gambar_budaya: {
         type: DataTypes.STRING,
         allowNull: true,
