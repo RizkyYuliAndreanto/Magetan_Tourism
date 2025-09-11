@@ -2,7 +2,6 @@
 const AkomodasiService = require("../services/akomodasiService");
 
 class AkomodasiController {
-  // GET all Akomodasi
   static async getAllAkomodasi(req, res) {
     try {
       const akomodasi = await AkomodasiService.getAllAkomodasi();
@@ -12,7 +11,6 @@ class AkomodasiController {
     }
   }
 
-  // GET Akomodasi by ID
   static async getAkomodasiById(req, res) {
     try {
       const { id } = req.params;
@@ -26,31 +24,28 @@ class AkomodasiController {
     }
   }
 
-  // CREATE new Akomodasi
   static async createAkomodasi(req, res) {
     const {
       nama_hotel,
       deskripsi_hotel,
       alamat_hotel,
       koordinat_lokasi,
-      fasilitas, // Ini bisa stringified JSON
+      fasilitas,
       kontak_hotel,
       website_hotel,
       rating_hotel,
       jumlah_dilihat,
       jumlah_share,
     } = req.body;
-    const id_admin = req.user.id; // Asumsi id_admin tersedia dari req.user setelah authMiddleware
+    const id_admin = req.user.id;
 
-    // Mengambil path file dari req.files
-    const gambar_utama_hotel_path =
+    const gambar_akomodasi_path = // Perbaikan di sini
       req.files &&
-      req.files["gambar_utama_hotel"] &&
-      req.files["gambar_utama_hotel"][0]
-        ? `/uploads/akomodasi/gambar-utama/${req.files["gambar_utama_hotel"][0].filename}` // Path sesuai multerConfig
+      req.files["gambar_akomodasi"] && // Perbaikan di sini
+      req.files["gambar_akomodasi"][0]
+        ? `/uploads/akomodasi/gambar-utama/${req.files["gambar_akomodasi"][0].filename}` // Perbaikan di sini
         : null;
 
-    // Validasi dasar: nama, deskripsi, alamat hotel harus ada
     if (!nama_hotel || !deskripsi_hotel || !alamat_hotel) {
       return res
         .status(400)
@@ -65,10 +60,10 @@ class AkomodasiController {
           alamat_hotel,
           koordinat_lokasi,
           fasilitas,
-          gambar_utama_hotel: gambar_utama_hotel_path, // Gunakan path yang benar
+          gambar_utama_hotel: gambar_akomodasi_path, // Perbaikan di sini
           kontak_hotel,
           website_hotel,
-          rating_hotel: parseFloat(rating_hotel) || null, // Konversi ke float, bisa null
+          rating_hotel: parseFloat(rating_hotel) || null,
           jumlah_dilihat: parseInt(jumlah_dilihat) || 0,
           jumlah_share: parseInt(jumlah_share) || 0,
           id_admin,
@@ -86,7 +81,6 @@ class AkomodasiController {
       ) {
         return res.status(400).json({ error: error.message });
       }
-      // Tambahkan penanganan error Multer jika terjadi
       if (
         error.message.includes("Jenis file tidak didukung") ||
         error.message.includes("Unexpected field name")
@@ -97,22 +91,19 @@ class AkomodasiController {
     }
   }
 
-  // UPDATE Akomodasi by ID
   static async updateAkomodasi(req, res) {
     const { id } = req.params;
     const updateData = req.body;
     const level_akses_requester = req.user.level_akses;
 
-    // Jika ada file baru yang diupload untuk mengganti gambar utama
     if (
       req.files &&
-      req.files["gambar_utama_hotel"] &&
-      req.files["gambar_utama_hotel"][0]
+      req.files["gambar_akomodasi"] && // Perbaikan di sini
+      req.files["gambar_akomodasi"][0]
     ) {
-      updateData.gambar_utama_hotel = `/uploads/akomodasi/gambar-utama/${req.files["gambar_utama_hotel"][0].filename}`;
+      updateData.gambar_utama_hotel = `/uploads/akomodasi/gambar-utama/${req.files["gambar_akomodasi"][0].filename}`; // Perbaikan di sini
     }
 
-    // Pastikan nilai angka dikonversi jika ada di updateData
     if (updateData.rating_hotel !== undefined) {
       updateData.rating_hotel = parseFloat(updateData.rating_hotel) || null;
     }
@@ -150,7 +141,6 @@ class AkomodasiController {
     }
   }
 
-  // DELETE Akomodasi by ID
   static async deleteAkomodasi(req, res) {
     const { id } = req.params;
     const level_akses_requester = req.user.level_akses;

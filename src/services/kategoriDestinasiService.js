@@ -97,7 +97,7 @@ class KategoriDestinasiService {
       }
 
       // Opsional: Periksa apakah ada berita yang masih terhubung
-      const associatedNews = await Destinasi.count({ where: { id_kategori: id } });
+      const associatedNews = await Destinasi.count({ where: { id_kategori_destinasi: id } });
       if (associatedNews > 0) {
         // Jika ada, lempar error atau putuskan hubungan (set id_kategori ke null)
         throw new Error(

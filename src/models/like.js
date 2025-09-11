@@ -57,7 +57,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       tipe_konten: {
         type: DataTypes.ENUM("berita", "destinasi", "sejarah", "event", "umkm"), // Sesuai migrasi, tambahkan 'sejarah'
-        allowNull: false,
+        allowNull: true,
       },
       id_konten: {
         type: DataTypes.INTEGER,

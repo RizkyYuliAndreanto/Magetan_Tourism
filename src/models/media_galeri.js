@@ -4,37 +4,41 @@ const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Media_Galeri extends Model {
     static associate(models) {
-      // Asosiasi polimorfik kembali ke konten (Berita, Destinasi, Event, UMKM, Sejarah)
-      // Hapus opsi 'scope' dari semua belongsTo di sini
+      // Asosiasi polimorfik kembali ke konten
       Media_Galeri.belongsTo(models.Berita, {
         foreignKey: "id_konten",
         constraints: false,
-        // scope: { tipe_konten: "berita" }, // HAPUS BARIS INI
         as: "berita",
       });
       Media_Galeri.belongsTo(models.Destinasi, {
         foreignKey: "id_konten",
         constraints: false,
-        // scope: { tipe_konten: "destinasi" }, // HAPUS BARIS INI
         as: "destinasi",
       });
       Media_Galeri.belongsTo(models.Event, {
         foreignKey: "id_konten",
         constraints: false,
-        // scope: { tipe_konten: "event" }, // HAPUS BARIS INI
         as: "event",
       });
       Media_Galeri.belongsTo(models.UMKM, {
         foreignKey: "id_konten",
         constraints: false,
-        // scope: { tipe_konten: "umkm" }, // HAPUS BARIS INI
         as: "umkm",
       });
       Media_Galeri.belongsTo(models.Sejarah, {
         foreignKey: "id_konten",
         constraints: false,
-        // scope: { tipe_konten: "sejarah" }, // HAPUS BARIS INI
         as: "sejarah",
+      });
+      Media_Galeri.belongsTo(models.Budaya, {
+        foreignKey: "id_konten",
+        constraints: false,
+        as: "budaya",
+      });
+      Media_Galeri.belongsTo(models.Akomodasi, {
+        foreignKey: "id_konten",
+        constraints: false,
+        as: "akomodasi",
       });
     }
   }
@@ -47,12 +51,22 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
       },
       tipe_konten: {
-        type: DataTypes.ENUM("berita", "destinasi", "sejarah", "event", "umkm"),
-        allowNull: false,
+        type: DataTypes.ENUM(
+          "berita",
+          "destinasi",
+          "sejarah",
+          "event",
+          "umkm",
+          "budaya",
+          "akomodasi"
+        ),
+        // UBAH INI: Izinkan nilai NULL untuk mengizinkan media tanpa relasi
+        allowNull: true,
       },
       id_konten: {
         type: DataTypes.INTEGER,
-        allowNull: false,
+        // UBAH INI: Izinkan nilai NULL
+        allowNull: true,
       },
       path_file: {
         type: DataTypes.STRING,

@@ -29,46 +29,54 @@ class MediaGaleriController {
 
   // CREATE new Media_Galeri (mendukung multiple file)
   static async createMediaGaleri(req, res) {
-    const {
-      id_konten,
-      tipe_konten,
-      deskripsi_file,
-      jenis_file,
-      urutan_tampil,
-    } = req.body;
-
-    const uploadedFiles = req.files;
+    const { id_konten, tipe_konten, deskripsi_file, urutan_tampil } = req.body;
+    let uploadedFiles = req.files;
 
     if (!uploadedFiles || uploadedFiles.length === 0) {
       return res.status(400).json({ error: "File media is required." });
     }
 
-    try {
-      // PERBAIKAN: Mengirim data ke service dalam bentuk yang terstruktur
-      const mediaData = {
-        id_konten: parseInt(id_konten),
-        tipe_konten,
-        deskripsi_file: Array.isArray(deskripsi_file)
-          ? deskripsi_file
-          : [deskripsi_file],
-        jenis_file: Array.isArray(jenis_file) ? jenis_file : [jenis_file],
-        urutan_tampil: Array.isArray(urutan_tampil)
-          ? urutan_tampil.map(Number)
-          : [parseInt(urutan_tampil)],
-      };
+    // Kompresi gambar jika size > 10MB menggunakan sharp
+    // (PDF/video tidak dikompresi di sini, hanya gambar)
+    const sharp = require("sharp");
+    const fs = require("fs");
+    const path = require("path");
+    const MAX_IMAGE_SIZE = 1024 * 1024 * 10; // 10 MB
 
-      // PERBAIKAN: Menambahkan validasi tambahan untuk memastikan jumlah metadata cocok dengan jumlah file
-      if (
-        uploadedFiles.length !== mediaData.deskripsi_file.length ||
-        uploadedFiles.length !== mediaData.jenis_file.length ||
-        uploadedFiles.length !== mediaData.urutan_tampil.length
-      ) {
-        return res
-          .status(400)
-          .json({
-            error: "Metadata tidak lengkap untuk setiap file yang diunggah.",
-          });
+    // Proses kompresi gambar secara async
+    const compressImageIfNeeded = async (file) => {
+      if (file.mimetype.startsWith("image/") && file.size > MAX_IMAGE_SIZE) {
+        const inputPath = file.path;
+        const ext = path.extname(file.originalname);
+        const outputPath = inputPath.replace(ext, `-compressed${ext}`);
+        try {
+          await sharp(inputPath)
+            .jpeg({ quality: 70 }) // Kompresi ke JPEG, quality bisa diatur
+            .toFile(outputPath);
+          // Hapus file asli, ganti info file ke file hasil kompresi
+          fs.unlinkSync(inputPath);
+          file.path = outputPath;
+          file.filename = path.basename(outputPath);
+          file.size = fs.statSync(outputPath).size;
+        } catch (err) {
+          // Jika gagal kompresi, biarkan file asli
+        }
       }
+      return file;
+    };
+
+    // Kompresi semua gambar yang perlu dikompresi
+    uploadedFiles = await Promise.all(
+      uploadedFiles.map((file) => compressImageIfNeeded(file))
+    );
+
+    try {
+      const mediaData = {
+        id_konten: id_konten ? parseInt(id_konten, 10) : null,
+        tipe_konten: tipe_konten || null,
+        deskripsi_file: deskripsi_file || null,
+        urutan_tampil: urutan_tampil ? parseInt(urutan_tampil, 10) : 0,
+      };
 
       const newMediaList = await MediaGaleriService.createMediaGaleri(
         mediaData,
@@ -86,10 +94,15 @@ class MediaGaleriController {
       ) {
         return res.status(400).json({ error: error.message });
       }
-      if (error.message.includes("Jenis file tidak didukung")) {
+      if (
+        error.message.includes("Jenis file tidak didukung") ||
+        error.message.includes("Content with ID")
+      ) {
         return res.status(400).json({ error: error.message });
       }
-      res.status(403).json({ error: error.message });
+      res
+        .status(500)
+        .json({ error: "Internal Server Error: " + error.message });
     }
   }
 
@@ -107,10 +120,10 @@ class MediaGaleriController {
     }
 
     if (updateData.urutan_tampil) {
-      updateData.urutan_tampil = parseInt(updateData.urutan_tampil);
+      updateData.urutan_tampil = parseInt(updateData.urutan_tampil, 10);
     }
     if (updateData.id_konten) {
-      updateData.id_konten = parseInt(updateData.id_konten);
+      updateData.id_konten = parseInt(updateData.id_konten, 10);
     }
 
     try {
@@ -131,10 +144,15 @@ class MediaGaleriController {
       if (error.message === "Media not found") {
         return res.status(404).json({ error: error.message });
       }
-      if (error.message.includes("Jenis file tidak didukung")) {
+      if (
+        error.message.includes("Jenis file tidak didukung") ||
+        error.message.includes("Content with ID")
+      ) {
         return res.status(400).json({ error: error.message });
       }
-      res.status(403).json({ error: error.message });
+      res
+        .status(500)
+        .json({ error: "Internal Server Error: " + error.message });
     }
   }
 
@@ -154,7 +172,9 @@ class MediaGaleriController {
       if (error.message === "Media not found") {
         return res.status(404).json({ error: error.message });
       }
-      res.status(403).json({ error: error.message });
+      res
+        .status(500)
+        .json({ error: "Internal Server Error: " + error.message });
     }
   }
 }

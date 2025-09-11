@@ -7,7 +7,7 @@ const configureMulter = require("../utils/multerConfig");
 
 const router = express.Router();
 
-const upload = configureMulter(); // Gunakan instance Multer yang sama
+const upload = configureMulter();
 
 // Public routes
 router.get("/", AkomodasiController.getAllAkomodasi);
@@ -19,7 +19,7 @@ router.post(
   authMiddleware,
   authorize(["admin", "superadmin"]),
   upload.fields([
-    { name: "gambar_utama_hotel", maxCount: 1 }, // Nama field untuk gambar utama hotel
+    { name: "gambar_akomodasi", maxCount: 1 }, // Perbaikan di sini
   ]),
   AkomodasiController.createAkomodasi
 );
@@ -29,7 +29,7 @@ router.put(
   authMiddleware,
   authorize(["admin", "superadmin"]),
   upload.fields([
-    { name: "gambar_utama_hotel", maxCount: 1 }, // Jika gambar utama juga bisa diupdate
+    { name: "gambar_akomodasi", maxCount: 1 }, // Perbaikan di sini
   ]),
   AkomodasiController.updateAkomodasi
 );

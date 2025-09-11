@@ -1,5 +1,10 @@
 // src/controllers/kontenPpidController.js
 const KontenPpidService = require("../services/kontenPpidService");
+const {
+  UniqueConstraintError,
+  ValidationError,
+  SequelizeForeignKeyConstraintError,
+} = require("sequelize");
 
 class KontenPpidController {
   // GET all Konten_PPID
@@ -16,6 +21,7 @@ class KontenPpidController {
   static async getKontenPpidById(req, res) {
     try {
       const { id } = req.params;
+
       const konten = await KontenPpidService.getKontenPpidById(id);
       if (!konten) {
         return res.status(404).json({ message: "PPID content not found" });
@@ -30,41 +36,29 @@ class KontenPpidController {
   static async createKontenPpid(req, res) {
     const { judul_konten, deskripsi_konten, id_kategori_ppid } = req.body;
     const id_admin = req.user.id;
+    const files = req.files;
 
-    // Mengambil path file PDF
-    const file_pdf_path =
-      req.files && req.files["file_pdf_ppid"] && req.files["file_pdf_ppid"][0]
-        ? `/uploads/ppid/pdf/${req.files["file_pdf_ppid"][0].filename}`
-        : null;
+    const file_pdf = files?.file_pdf_ppid?.[0];
+    const gambar_sampul = files?.gambar_sampul_ppid?.[0];
 
-    // Mengambil path gambar sampul
-    const gambar_sampul_path =
-      req.files &&
-      req.files["gambar_sampul_ppid"] &&
-      req.files["gambar_sampul_ppid"][0]
-        ? `/uploads/ppid/sampul/${req.files["gambar_sampul_ppid"][0].filename}`
-        : null;
+    const file_pdf_path = file_pdf
+      ? `/uploads/ppid/pdf/${file_pdf.filename}`
+      : null;
+    const gambar_sampul_path = gambar_sampul
+      ? `/uploads/ppid/sampul/${gambar_sampul.filename}`
+      : null;
 
-    // Mengambil file galeri
-    const gambar_ppid_galeri_files =
-      req.files && req.files["gambar_ppid_galeri"]
-        ? req.files["gambar_ppid_galeri"]
-        : [];
+    if (!judul_konten || !id_kategori_ppid) {
+      return res
+        .status(400)
+        .json({ error: "Judul konten dan ID kategori PPID wajib diisi." });
+    }
 
-    // Validasi: harus ada salah satu dari file PDF, gambar sampul, gambar galeri, atau deskripsi
-    if (
-      !file_pdf_path &&
-      !gambar_sampul_path &&
-      gambar_ppid_galeri_files.length === 0 &&
-      !deskripsi_konten
-    ) {
+    if (!file_pdf_path && !gambar_sampul_path && !deskripsi_konten) {
       return res.status(400).json({
         error:
-          "At least one of PDF file, cover image, gallery images, or description is required.",
+          "Setidaknya satu dari file PDF, gambar sampul, atau deskripsi wajib diisi.",
       });
-    }
-    if (!id_kategori_ppid) {
-      return res.status(400).json({ error: "PPID category ID is required." });
     }
 
     try {
@@ -81,36 +75,22 @@ class KontenPpidController {
         req.user.level_akses
       );
 
-      const uploadedGalleryMedia = [];
-      for (const file of gambar_ppid_galeri_files) {
-        const mediaData = {
-          id_konten: newKonten.id_konten_ppid,
-          tipe_konten: "ppid_konten",
-          path_file: `/uploads/ppid/galeri/${file.filename}`,
-          deskripsi_file: `Gambar untuk ${newKonten.judul_konten}`,
-          jenis_file: file.mimetype.startsWith("image/") ? "gambar" : "video",
-        };
-        // Logika untuk menyimpan ke tabel Media_Galeri
-        console.log(
-          "Gambar galeri PPID untuk konten baru:",
-          mediaData.path_file
-        );
-      }
-
       res.status(201).json({
         message: "PPID content created successfully",
         konten: newKonten,
       });
     } catch (error) {
       if (
-        error.name === "SequelizeValidationError" ||
-        error.name === "SequelizeUniqueConstraintError"
+        error instanceof ValidationError ||
+        error instanceof UniqueConstraintError ||
+        error instanceof SequelizeForeignKeyConstraintError
       ) {
         return res.status(400).json({ error: error.message });
       }
       if (
         error.message.includes("Jenis file tidak didukung") ||
-        error.message.includes("Unexpected field name")
+        error.message.includes("Unexpected field name") ||
+        error.message.includes("Related PPID category not found")
       ) {
         return res.status(400).json({ error: error.message });
       }
@@ -123,35 +103,29 @@ class KontenPpidController {
     const { id } = req.params;
     const updateData = req.body;
     const level_akses_requester = req.user.level_akses;
+    const files = req.files;
 
-    if (
-      req.files &&
-      req.files["file_pdf_ppid"] &&
-      req.files["file_pdf_ppid"][0]
-    ) {
-      updateData.file_pdf_path = `/uploads/ppid/pdf/${req.files["file_pdf_ppid"][0].filename}`;
+    const file_pdf = files?.file_pdf_ppid?.[0];
+    const gambar_sampul = files?.gambar_sampul_ppid?.[0];
+
+    if (file_pdf) {
+      updateData.file_pdf_path = `/uploads/ppid/pdf/${file_pdf.filename}`;
+      // Tanggal publikasi diperbarui hanya jika ada file baru diunggah
       updateData.tanggal_publikasi = new Date();
     }
 
-    // Menambahkan logika untuk update gambar sampul
-    if (
-      req.files &&
-      req.files["gambar_sampul_ppid"] &&
-      req.files["gambar_sampul_ppid"][0]
-    ) {
-      updateData.gambar_sampul = `/uploads/ppid/sampul/${req.files["gambar_sampul_ppid"][0].filename}`;
+    if (gambar_sampul) {
+      updateData.gambar_sampul = `/uploads/ppid/sampul/${gambar_sampul.filename}`;
+      // Tanggal publikasi diperbarui hanya jika ada file baru diunggah
       updateData.tanggal_publikasi = new Date();
     }
 
-    const new_gambar_ppid_galeri_files =
-      req.files && req.files["gambar_ppid_galeri"]
-        ? req.files["gambar_ppid_galeri"]
-        : [];
-
+    // Mengonversi id_kategori_ppid ke integer jika ada
     if (updateData.id_kategori_ppid !== undefined) {
       updateData.id_kategori_ppid = parseInt(updateData.id_kategori_ppid);
     }
 
+    // Jika ada data lain yang diubah, perbarui tanggal publikasi juga
     if (Object.keys(updateData).length > 0 && !updateData.tanggal_publikasi) {
       updateData.tanggal_publikasi = new Date();
     }
@@ -162,37 +136,18 @@ class KontenPpidController {
         updateData,
         level_akses_requester
       );
-
-      const uploadedGalleryMedia = [];
-      for (const file of new_gambar_ppid_galeri_files) {
-        const mediaData = {
-          id_konten: updatedKonten.id_konten_ppid,
-          tipe_konten: "ppid_konten",
-          path_file: `/uploads/ppid/galeri/${file.filename}`,
-          deskripsi_file: `Gambar untuk ${updatedKonten.judul_konten}`,
-          jenis_file: file.mimetype.startsWith("image/") ? "gambar" : "video",
-        };
-        // Logika untuk menyimpan ke tabel Media_Galeri
-        console.log(
-          "Gambar galeri PPID baru diupdate untuk konten:",
-          mediaData.path_file
-        );
-      }
-
       res.status(200).json({
         message: "PPID content updated successfully",
         konten: updatedKonten,
       });
     } catch (error) {
-      if (error.name === "SequelizeValidationError") {
-        return res.status(400).json({ error: error.message });
-      }
       if (error.message === "PPID content not found") {
         return res.status(404).json({ error: error.message });
       }
       if (
         error.message.includes("Jenis file tidak didukung") ||
-        error.message.includes("Unexpected field name")
+        error.message.includes("Unexpected field name") ||
+        error.message.includes("Related PPID category for update not found")
       ) {
         return res.status(400).json({ error: error.message });
       }

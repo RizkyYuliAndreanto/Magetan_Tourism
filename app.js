@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const path = require("path");
 const authRoutes = require("./src/routes/authRoutes"); // Ini penting!
 const beritaRoutes = require("./src/routes/beritaRoutes"); // Ini penting!
 const kategoriBeritaRoutes = require("./src/routes/kategoriBeritaRoutes"); // Ini penting!
@@ -32,31 +33,27 @@ app.use(
   })
 );
 
-
 // Serve static files from the 'uploads' directory
-app.use('/uploads', express.static('uploads'));
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/api/auth", authRoutes);
-app.use("/api/berita", beritaRoutes,);
+app.use("/api/berita", beritaRoutes);
 app.use("/api/kategori-berita", kategoriBeritaRoutes);
 app.use("/api/destinasi", destinasiRoutes);
 app.use("/api/kategori-destinasi", kategoriDestinasiRoutes);
 app.use("/api/event", eventRoutes);
 app.use("/api/sejarah", sejarahRoutes);
-app.use("/api/umkm", umkmRoutes)
+app.use("/api/umkm", umkmRoutes);
 app.use("/api/media-galeri", mediaGaleriRoutes);
 app.use("/api/struktur-anggota", strukturAnggotaRoutes);
-app.use("/api/pengumuman", pengumumanRoutes)
+app.use("/api/pengumuman", pengumumanRoutes);
 app.use("/api/visi-misi", visiMisiRoutes);
 app.use("/api/struktur-organisasi", strukturOrganisasiRoutes);
 app.use("/api/akomodasi", akomodasiRoutes);
 app.use("/api/kategori-ppid", kategoriPpidRoutes);
 app.use("/api/konten-ppid", kontenPpidRoutes);
 app.use("/api/kategori-umkm", kategoriUmkmRoutes);
-app.use("/api/kategori-budaya", kategoriBudayaRoutes)
-app.use("/api/budaya", budayaRoutes)
-
-
-
+app.use("/api/kategori-budaya", kategoriBudayaRoutes);
+app.use("/api/budaya", budayaRoutes);
 
 // Middleware penanganan kesalahan umum
 app.use((err, req, res, next) => {
