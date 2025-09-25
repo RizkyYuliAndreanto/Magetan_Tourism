@@ -42,13 +42,6 @@ module.exports = (sequelize, DataTypes) => {
         scope: { tipe_konten: "berita" },
         as: "shareBerita",
       });
-      // Asosiasi ke model Halaman
-      Berita.hasOne(models.Halaman, {
-        foreignKey: "id_konten",
-        constraints: false,
-        scope: { tipe_konten: "berita" },
-        as: "halamanBerita",
-      });
     }
   }
   Berita.init(

@@ -4,11 +4,7 @@ const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Like extends Model {
     static associate(models) {
-      // Like dimiliki oleh Pengunjung
-      Like.belongsTo(models.Pengunjung, {
-        foreignKey: "id_pengunjung",
-        as: "pengunjung",
-      });
+      // Note: id_pengunjung field exists but no Pengunjung model/table
       // Like adalah polimorfik, terkait dengan berbagai model konten
       Like.belongsTo(models.Berita, {
         foreignKey: "id_konten",
@@ -34,12 +30,11 @@ module.exports = (sequelize, DataTypes) => {
         scope: { tipe_konten: "umkm" },
         as: "umkm",
       });
-      Like.belongsTo(models.Sejarah, {
-        // Tambahkan asosiasi untuk Sejarah
+      Like.belongsTo(models.Budaya, {
         foreignKey: "id_konten",
         constraints: false,
-        scope: { tipe_konten: "sejarah" },
-        as: "sejarah",
+        scope: { tipe_konten: "budaya" },
+        as: "budaya",
       });
     }
   }

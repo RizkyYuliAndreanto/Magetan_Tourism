@@ -1,5 +1,12 @@
-// src/services/beritaService.js
-const { Destinasi, Kategori_Destinasi, Admin, Media_Galeri } = require("../models"); // Pastikan path benar
+// src/services/destinasiService.js
+const {
+  Destinasi,
+  Kategori_Destinasi,
+  Admin,
+  Media_Galeri,
+} = require("../models"); // Pastikan path benar
+const FileHelper = require("../utils/fileHelper");
+const InteractionService = require("./interactionService");
 
 class DestinasiService {
   static async getAllDestinasi() {
@@ -102,25 +109,27 @@ class DestinasiService {
       const destinasi = await Destinasi.findByPk(id);
 
       if (!destinasi) {
-        throw new Error("Berita not found");
+        throw new Error("Destinasi not found");
       }
 
       // Otorisasi:
-      // Super Admin bisa mengedit berita apapun.
-      // Admin hanya bisa mengedit beritanya sendiri.
       if (
         levelAksesRequester === "admin" &&
         destinasi.id_admin !== idAdminRequester
       ) {
-        throw new Error("Forbidden: You can only update your own news.");
+        throw new Error("Forbidden: You can only update your own destinasi.");
       } else if (
         levelAksesRequester !== "admin" &&
         levelAksesRequester !== "superadmin"
       ) {
         throw new Error(
-          "Forbidden: Only Admin or Super Admin can update news."
+          "Forbidden: Only Admin or Super Admin can update destinasi."
         );
       }
+
+      // Hapus file gambar lama jika ada gambar baru
+      const fileFields = ["gambar_utama"];
+      FileHelper.deleteOldFiles(destinasi, updateData, fileFields);
 
       await destinasi.update(updateData);
       return destinasi;
@@ -131,33 +140,81 @@ class DestinasiService {
 
   static async deleteDestinasi(id, idAdminRequester, levelAksesRequester) {
     try {
-      const destinasi = await Destinasi.findByPk(id);
+      const destinasi = await Destinasi.findByPk(id, {
+        include: [
+          {
+            model: Media_Galeri,
+            as: "galeriDestinasi",
+            attributes: ["path_file"],
+          },
+        ],
+      });
 
       if (!destinasi) {
         throw new Error("Destinasi not found");
       }
 
       // Otorisasi:
-      // Super Admin bisa menghapus berita apapun.
-      // Admin hanya bisa menghapus beritanya sendiri.
       if (
         levelAksesRequester === "admin" &&
-        Destinasi.id_admin !== idAdminRequester
+        destinasi.id_admin !== idAdminRequester
       ) {
-        throw new Error("Forbidden: You can only delete your own news.");
+        throw new Error("Forbidden: You can only delete your own destinasi.");
       } else if (
         levelAksesRequester !== "admin" &&
         levelAksesRequester !== "superadmin"
       ) {
         throw new Error(
-          "Forbidden: Only Admin or Super Admin can delete news."
+          "Forbidden: Only Admin or Super Admin can delete destinasi."
         );
       }
+
+      // Hapus file gambar destinasi
+      const filesToDelete = [];
+      if (destinasi.gambar_utama) filesToDelete.push(destinasi.gambar_utama);
+
+      // Hapus file galeri terkait
+      if (destinasi.galeriDestinasi && destinasi.galeriDestinasi.length > 0) {
+        const galeriFiles = destinasi.galeriDestinasi.map(
+          (item) => item.path_file
+        );
+        filesToDelete.push(...galeriFiles);
+      }
+
+      FileHelper.deleteMultipleFiles(filesToDelete);
+
+      // Hapus interactions terkait
+      await InteractionService.deleteAllInteractionsByContent("destinasi", id);
 
       await destinasi.destroy();
       return { message: "Destinasi deleted successfully" };
     } catch (error) {
-      throw new Error("Could not delete berita: " + error.message);
+      throw new Error("Could not delete destinasi: " + error.message);
+    }
+  }
+
+  // Method untuk mendapatkan destinasi dengan interaksi
+  static async getDestinasiWithInteractions(id, userId = null) {
+    try {
+      const destinasi = await this.getDestinasiById(id);
+      if (!destinasi) {
+        throw new Error("Destinasi not found");
+      }
+
+      const interactions = await InteractionService.getContentInteractions(
+        "destinasi",
+        id,
+        userId
+      );
+
+      return {
+        ...destinasi.toJSON(),
+        interactions,
+      };
+    } catch (error) {
+      throw new Error(
+        "Could not fetch destinasi with interactions: " + error.message
+      );
     }
   }
 }

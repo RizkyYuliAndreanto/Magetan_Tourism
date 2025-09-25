@@ -45,15 +45,6 @@ module.exports = (sequelize, DataTypes) => {
         },
         as: "shareAkomodasi",
       });
-      // Akomodasi memiliki satu Halaman (polimorfik)
-      Akomodasi.hasOne(models.Halaman, {
-        foreignKey: "id_konten",
-        constraints: false,
-        scope: {
-          tipe_konten: "akomodasi",
-        },
-        as: "halamanAkomodasi",
-      });
     }
   }
   Akomodasi.init(
@@ -84,7 +75,8 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.TEXT, // Bisa JSON string dari array atau teks biasa
         allowNull: true,
       },
-      gambar_utama_hotel: { // Gambar hero/utama hotel
+      gambar_utama_hotel: {
+        // Gambar hero/utama hotel
         type: DataTypes.STRING,
         allowNull: true,
       },
@@ -96,7 +88,8 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
-      rating_hotel: { // Opsional: 1-5 bintang
+      rating_hotel: {
+        // Opsional: 1-5 bintang
         type: DataTypes.DECIMAL(2, 1),
         allowNull: true,
       },

@@ -4,6 +4,7 @@ const AkomodasiController = require("../controllers/akomodasiController");
 const authMiddleware = require("../middleware/authMiddleware");
 const authorize = require("../middleware/authorizeMiddleware");
 const configureMulter = require("../utils/multerConfig");
+const compressionMiddleware = require("../middleware/compressionMiddleware");
 
 const router = express.Router();
 
@@ -19,8 +20,10 @@ router.post(
   authMiddleware,
   authorize(["admin", "superadmin"]),
   upload.fields([
-    { name: "gambar_akomodasi", maxCount: 1 }, // Perbaikan di sini
+    { name: "gambar_utama_hotel", maxCount: 1 },
+    { name: "media_galeri_files", maxCount: 50 },
   ]),
+  compressionMiddleware(), // Kompresi otomatis
   AkomodasiController.createAkomodasi
 );
 
@@ -29,8 +32,10 @@ router.put(
   authMiddleware,
   authorize(["admin", "superadmin"]),
   upload.fields([
-    { name: "gambar_akomodasi", maxCount: 1 }, // Perbaikan di sini
+    { name: "gambar_utama_hotel", maxCount: 1 },
+    { name: "media_galeri_files", maxCount: 50 },
   ]),
+  compressionMiddleware(), // Kompresi otomatis
   AkomodasiController.updateAkomodasi
 );
 

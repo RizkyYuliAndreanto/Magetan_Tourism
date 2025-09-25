@@ -50,15 +50,6 @@ module.exports = (sequelize, DataTypes) => {
         },
         as: "shareUMKM",
       });
-      // UMKM memiliki satu Halaman (polimorfik)
-      UMKM.hasOne(models.Halaman, {
-        foreignKey: "id_konten",
-        constraints: false,
-        scope: {
-          tipe_konten: "umkm",
-        },
-        as: "halamanUMKM",
-      });
     }
   }
   UMKM.init(
@@ -77,17 +68,27 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.TEXT,
         allowNull: false,
       },
-      jenis_usaha: {
+      hastag_umkm: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
       },
+
       alamat_umkm: {
         type: DataTypes.TEXT,
         allowNull: false,
       },
+
       kontak_umkm: {
         type: DataTypes.STRING,
         allowNull: false,
+      },
+      jam_operasional: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      hari_operasional: {
+        type: DataTypes.STRING,
+        allowNull: true,
       },
       website_umkm: {
         type: DataTypes.STRING,

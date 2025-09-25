@@ -1,5 +1,8 @@
 // src/controllers/beritaController.js
 const BeritaService = require("../services/beritaService");
+const sharp = require("sharp");
+const fs = require("fs");
+const path = require("path");
 
 class BeritaController {
   // Ambil semua berita
@@ -12,11 +15,13 @@ class BeritaController {
     }
   }
 
-  // Ambil berita berdasarkan ID
+  // Ambil berita berdasarkan ID dengan interactions
   static async getBeritaById(req, res) {
     try {
       const { id } = req.params;
-      const berita = await BeritaService.getBeritaById(id);
+      const userId = req.user?.id || req.query.userId;
+
+      const berita = await BeritaService.getBeritaWithInteractions(id, userId);
       if (!berita) {
         return res.status(404).json({ message: "Berita not found" });
       }
@@ -40,12 +45,37 @@ class BeritaController {
     } = req.body;
     const id_admin = req.user.id;
 
-    const gambar_hero_berita =
+    let gambar_hero_berita = null;
+
+    // Kompresi gambar jika diperlukan
+    if (
       req.files &&
       req.files["gambar_hero_berita"] &&
       req.files["gambar_hero_berita"][0]
-        ? `/uploads/berita/gambar-hero/${req.files["gambar_hero_berita"][0].filename}`
-        : null;
+    ) {
+      const file = req.files["gambar_hero_berita"][0];
+      const MAX_IMAGE_SIZE = 1024 * 1024 * 10; // 10 MB
+
+      // Kompresi gambar jika size > 10MB
+      if (file.size > MAX_IMAGE_SIZE) {
+        const inputPath = file.path;
+        const ext = path.extname(file.originalname);
+        const outputPath = inputPath.replace(ext, `-compressed.jpg`);
+
+        try {
+          await sharp(inputPath).jpeg({ quality: 70 }).toFile(outputPath);
+
+          // Hapus file asli, ganti dengan file yang dikompresi
+          fs.unlinkSync(inputPath);
+          file.path = outputPath;
+          file.filename = path.basename(outputPath);
+        } catch (err) {
+          console.log("Gagal kompresi gambar:", err.message);
+        }
+      }
+
+      gambar_hero_berita = `/uploads/berita/gambar-hero/${file.filename}`;
+    }
 
     try {
       const newBerita = await BeritaService.createBerita(
@@ -94,12 +124,34 @@ class BeritaController {
     const id_admin_requester = req.user.id;
     const level_akses_requester = req.user.level_akses;
 
+    // Handle file upload dengan kompresi
     if (
       req.files &&
       req.files["gambar_hero_berita"] &&
       req.files["gambar_hero_berita"][0]
     ) {
-      updateData.gambar_hero_berita = `/uploads/berita/gambar-hero/${req.files["gambar_hero_berita"][0].filename}`;
+      const file = req.files["gambar_hero_berita"][0];
+      const MAX_IMAGE_SIZE = 1024 * 1024 * 10; // 10 MB
+
+      // Kompresi gambar jika size > 10MB
+      if (file.size > MAX_IMAGE_SIZE) {
+        const inputPath = file.path;
+        const ext = path.extname(file.originalname);
+        const outputPath = inputPath.replace(ext, `-compressed.jpg`);
+
+        try {
+          await sharp(inputPath).jpeg({ quality: 70 }).toFile(outputPath);
+
+          // Hapus file asli, ganti dengan file yang dikompresi
+          fs.unlinkSync(inputPath);
+          file.path = outputPath;
+          file.filename = path.basename(outputPath);
+        } catch (err) {
+          console.log("Gagal kompresi gambar:", err.message);
+        }
+      }
+
+      updateData.gambar_hero_berita = `/uploads/berita/gambar-hero/${file.filename}`;
     }
 
     try {

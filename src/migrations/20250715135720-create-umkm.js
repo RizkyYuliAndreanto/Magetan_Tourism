@@ -18,7 +18,7 @@ module.exports = {
         type: Sequelize.TEXT,
         allowNull: true,
       },
-      jenis_usaha: {
+      hastag_umkm: {
         type: Sequelize.STRING,
         allowNull: true,
       },
@@ -27,6 +27,14 @@ module.exports = {
         allowNull: true,
       },
       kontak_umkm: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      jam_operasional: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      hari_operasional: {
         type: Sequelize.STRING,
         allowNull: true,
       },

@@ -8,6 +8,8 @@ const {
   Share_Log,
   Halaman,
 } = require("../models"); // Import semua model terkait
+const FileHelper = require("../utils/fileHelper");
+const InteractionService = require("./interactionService");
 
 class AkomodasiService {
   static async getAllAkomodasi() {
@@ -128,7 +130,12 @@ class AkomodasiService {
     }
   }
 
-  static async updateAkomodasi(id, updateData, levelAksesRequester) {
+  static async updateAkomodasi(
+    id,
+    updateData,
+    idAdminRequester,
+    levelAksesRequester
+  ) {
     try {
       const akomodasi = await Akomodasi.findByPk(id);
 
@@ -137,12 +144,14 @@ class AkomodasiService {
       }
 
       // Otorisasi:
-      // Admin atau superadmin bisa mengupdate akomodasi.
-      // Jika ingin admin hanya bisa update akomodasi yang dikelolanya sendiri, tambahkan:
-      // if (levelAksesRequester === "admin" && akomodasi.id_admin !== idAdminRequester) {
-      //   throw new Error("Forbidden: You can only update your own accommodations.");
-      // }
       if (
+        levelAksesRequester === "admin" &&
+        akomodasi.id_admin !== idAdminRequester
+      ) {
+        throw new Error(
+          "Forbidden: You can only update your own accommodations."
+        );
+      } else if (
         levelAksesRequester !== "admin" &&
         levelAksesRequester !== "superadmin"
       ) {
@@ -151,6 +160,10 @@ class AkomodasiService {
         );
       }
 
+      // Hapus file gambar lama jika ada gambar baru
+      const fileFields = ["gambar_utama_hotel"];
+      FileHelper.deleteOldFiles(akomodasi, updateData, fileFields);
+
       await akomodasi.update(updateData);
       return akomodasi;
     } catch (error) {
@@ -158,21 +171,31 @@ class AkomodasiService {
     }
   }
 
-  static async deleteAkomodasi(id, levelAksesRequester) {
+  static async deleteAkomodasi(id, idAdminRequester, levelAksesRequester) {
     try {
-      const akomodasi = await Akomodasi.findByPk(id);
+      const akomodasi = await Akomodasi.findByPk(id, {
+        include: [
+          {
+            model: Media_Galeri,
+            as: "galeriAkomodasi",
+            attributes: ["path_file"],
+          },
+        ],
+      });
 
       if (!akomodasi) {
         throw new Error("Accommodation not found");
       }
 
       // Otorisasi:
-      // Admin atau superadmin bisa menghapus akomodasi.
-      // Jika ingin admin hanya bisa menghapus akomodasi yang dikelolanya sendiri, tambahkan:
-      // if (levelAksesRequester === "admin" && akomodasi.id_admin !== idAdminRequester) {
-      //   throw new Error("Forbidden: You can only delete your own accommodations.");
-      // }
       if (
+        levelAksesRequester === "admin" &&
+        akomodasi.id_admin !== idAdminRequester
+      ) {
+        throw new Error(
+          "Forbidden: You can only delete your own accommodations."
+        );
+      } else if (
         levelAksesRequester !== "admin" &&
         levelAksesRequester !== "superadmin"
       ) {
@@ -181,19 +204,53 @@ class AkomodasiService {
         );
       }
 
-      // Opsional: Hapus file fisik terkait (gambar_utama_hotel)
-      // const fs = require('fs');
-      // const path = require('path');
-      // const uploadDir = path.join(__dirname, '..', '..', 'uploads'); // Sesuaikan dengan root uploads Anda
-      // if (akomodasi.gambar_utama_hotel) {
-      //   const filePath = path.join(uploadDir, akomodasi.gambar_utama_hotel.replace('/uploads/', ''));
-      //   if (fs.existsSync(filePath)) { fs.unlinkSync(filePath); }
-      // }
+      // Hapus file gambar akomodasi
+      const filesToDelete = [];
+      if (akomodasi.gambar_utama_hotel)
+        filesToDelete.push(akomodasi.gambar_utama_hotel);
+
+      // Hapus file galeri terkait
+      if (akomodasi.galeriAkomodasi && akomodasi.galeriAkomodasi.length > 0) {
+        const galeriFiles = akomodasi.galeriAkomodasi.map(
+          (item) => item.path_file
+        );
+        filesToDelete.push(...galeriFiles);
+      }
+
+      FileHelper.deleteMultipleFiles(filesToDelete);
+
+      // Hapus interactions terkait
+      await InteractionService.deleteAllInteractionsByContent("akomodasi", id);
 
       await akomodasi.destroy();
       return { message: "Accommodation deleted successfully" };
     } catch (error) {
       throw new Error("Could not delete accommodation: " + error.message);
+    }
+  }
+
+  // Method untuk mendapatkan akomodasi dengan interaksi
+  static async getAkomodasiWithInteractions(id, userId = null) {
+    try {
+      const akomodasi = await this.getAkomodasiById(id);
+      if (!akomodasi) {
+        throw new Error("Akomodasi not found");
+      }
+
+      const interactions = await InteractionService.getContentInteractions(
+        "akomodasi",
+        id,
+        userId
+      );
+
+      return {
+        ...akomodasi.toJSON(),
+        interactions,
+      };
+    } catch (error) {
+      throw new Error(
+        "Could not fetch akomodasi with interactions: " + error.message
+      );
     }
   }
 }

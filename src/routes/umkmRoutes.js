@@ -4,6 +4,7 @@ const UMKMController = require("../controllers/umkmController");
 const authMiddleware = require("../middleware/authMiddleware");
 const authorize = require("../middleware/authorizeMiddleware");
 const configureMulter = require("../utils/multerConfig"); // Import fungsi configureMulter yang sudah dimodifikasi
+const compressionMiddleware = require("../middleware/compressionMiddleware");
 
 const router = express.Router();
 
@@ -22,7 +23,9 @@ router.post(
   upload.fields([
     { name: "gambar_produk_utama", maxCount: 1 }, // Nama field sesuai model
     { name: "gambar_sampul", maxCount: 1 },
+    { name: "media_galeri_files", maxCount: 50 },
   ]),
+  compressionMiddleware(), // Kompresi otomatis
   UMKMController.createUMKM
 );
 
@@ -33,7 +36,9 @@ router.put(
   upload.fields([
     { name: "gambar_produk_utama", maxCount: 1 }, // Nama field sesuai model
     { name: "gambar_sampul", maxCount: 1 },
+    { name: "media_galeri_files", maxCount: 50 },
   ]),
+  compressionMiddleware(), // Kompresi otomatis
   UMKMController.updateUMKM
 );
 

@@ -4,6 +4,7 @@ const BeritaController = require("../controllers/beritaController");
 const authMiddleware = require("../middleware/authMiddleware");
 const authorize = require("../middleware/authorizeMiddleware");
 const configureMulter = require("../utils/multerConfig"); // Import multer config
+const compressionMiddleware = require("../middleware/compressionMiddleware");
 
 const router = express.Router();
 const upload = configureMulter(); // Inisialisasi multer
@@ -22,6 +23,7 @@ router.post(
     { name: "gambar_hero_berita", maxCount: 1 }, // Untuk gambar hero
     { name: "media_galeri_files", maxCount: 50 }, // Untuk file galeri
   ]),
+  compressionMiddleware(), // Kompresi otomatis
   BeritaController.createBerita
 );
 
@@ -33,6 +35,7 @@ router.put(
     { name: "gambar_hero_berita", maxCount: 1 },
     { name: "media_galeri_files", maxCount: 50 },
   ]),
+  compressionMiddleware(), // Kompresi otomatis
   BeritaController.updateBerita
 );
 
