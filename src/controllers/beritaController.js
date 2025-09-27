@@ -35,12 +35,8 @@ class BeritaController {
   static async createBerita(req, res) {
     const {
       judul,
-      teras_berita,
       isi_berita,
-      penutup_berita,
       tanggal_publikasi,
-      koordinat_lokasi,
-      zoom_level_peta,
       id_kategori,
     } = req.body;
     const id_admin = req.user.id;
@@ -81,13 +77,11 @@ class BeritaController {
       const newBerita = await BeritaService.createBerita(
         {
           judul,
-          teras_berita,
+         
           isi_berita,
-          penutup_berita,
+         
           tanggal_publikasi,
           gambar_hero_berita,
-          koordinat_lokasi,
-          zoom_level_peta,
           id_kategori,
           id_admin,
         },

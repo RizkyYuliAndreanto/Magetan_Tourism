@@ -1,5 +1,5 @@
 // src/services/budayaService.js
-const { Budaya, Kategori_Budaya, Admin, Media_Galeri } = require("../models");
+const { Budaya, Admin, Media_Galeri } = require("../models");
 const FileHelper = require("../utils/fileHelper");
 const InteractionService = require("./interactionService");
 
@@ -9,10 +9,6 @@ class BudayaService {
       const budaya = await Budaya.findAll({
         include: [
           {
-            model: Kategori_Budaya,
-            as: "kategori",
-          },
-          {
             model: Admin,
             as: "adminPengelola",
             attributes: ["username", "nama_lengkap", "level_akses"],
@@ -20,7 +16,13 @@ class BudayaService {
           {
             model: Media_Galeri,
             as: "galeriBudaya",
-            attributes: ["path_file", "deskripsi_file", "jenis_file"],
+            attributes: [
+              "id_media_galeri",
+              "path_file",
+              "deskripsi_file",
+              "jenis_file",
+              "urutan_tampil",
+            ],
           },
         ],
       });
@@ -35,10 +37,6 @@ class BudayaService {
       const budaya = await Budaya.findByPk(id, {
         include: [
           {
-            model: Kategori_Budaya,
-            as: "kategori",
-          },
-          {
             model: Admin,
             as: "adminPengelola",
             attributes: ["username", "nama_lengkap", "level_akses"],
@@ -46,7 +44,13 @@ class BudayaService {
           {
             model: Media_Galeri,
             as: "galeriBudaya",
-            attributes: ["path_file", "deskripsi_file", "jenis_file"],
+            attributes: [
+              "id_media_galeri",
+              "path_file",
+              "deskripsi_file",
+              "jenis_file",
+              "urutan_tampil",
+            ],
           },
         ],
       });
