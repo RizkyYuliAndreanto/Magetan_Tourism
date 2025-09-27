@@ -1,5 +1,6 @@
 // src/controllers/umkmController.js
 const UMKMService = require("../services/umkmService");
+const CompressionHelper = require("../utils/compressionHelper");
 
 class UMKMController {
   static async getAllUMKM(req, res) {
@@ -14,7 +15,9 @@ class UMKMController {
   static async getUMKMById(req, res) {
     try {
       const { id } = req.params;
-      const umkm = await UMKMService.getUMKMById(id);
+      const userId = req.user?.id || req.query.userId;
+
+      const umkm = await UMKMService.getUMKMWithInteractions(id, userId);
       if (!umkm) {
         return res.status(404).json({ message: "UMKM not found" });
       }
@@ -28,13 +31,15 @@ class UMKMController {
     const {
       nama_umkm,
       deskripsi_umkm,
-      jenis_usaha,
+      hastag_umkm,
       alamat_umkm,
       kontak_umkm,
+      jam_operasional,
+      hari_operasional,
       website_umkm,
       jumlah_dilihat,
       jumlah_share,
-      id_kategori_umkm, // Tambahkan id_kategori_umkm
+      id_kategori_umkm,
     } = req.body;
     const id_admin = req.user.id;
 
@@ -55,15 +60,19 @@ class UMKMController {
         {
           nama_umkm,
           deskripsi_umkm,
-          jenis_usaha,
+          hastag_umkm,
           alamat_umkm,
           kontak_umkm,
+          jam_operasional,
+          hari_operasional,
           website_umkm,
           gambar_produk_utama: gambar_produk_utama_path,
           gambar_sampul: gambar_sampul_path,
           jumlah_dilihat: parseInt(jumlah_dilihat) || 0,
           jumlah_share: parseInt(jumlah_share) || 0,
-          id_kategori_umkm, // Masukkan id_kategori_umkm ke data
+          id_kategori_umkm: id_kategori_umkm
+            ? parseInt(id_kategori_umkm)
+            : null,
           id_admin,
         },
         req.user.level_akses

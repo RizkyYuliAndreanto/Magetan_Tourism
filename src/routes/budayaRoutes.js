@@ -4,6 +4,7 @@ const BudayaController = require("../controllers/budayaController");
 const authMiddleware = require("../middleware/authMiddleware");
 const authorize = require("../middleware/authorizeMiddleware");
 const configureMulter = require("../utils/multerConfig");
+const compressionMiddleware = require("../middleware/compressionMiddleware");
 
 const router = express.Router();
 const upload = configureMulter();
@@ -15,7 +16,11 @@ router.post(
   "/",
   authMiddleware,
   authorize(["admin", "superadmin"]),
-  upload.fields([{ name: "gambar_budaya", maxCount: 1 }]),
+  upload.fields([
+    { name: "gambar_budaya", maxCount: 1 },
+    { name: "media_galeri_files", maxCount: 50 },
+  ]),
+  compressionMiddleware(), // Kompresi otomatis
   BudayaController.createBudaya
 );
 
@@ -23,7 +28,11 @@ router.put(
   "/:id",
   authMiddleware,
   authorize(["admin", "superadmin"]),
-  upload.fields([{ name: "gambar_budaya", maxCount: 1 }]),
+  upload.fields([
+    { name: "gambar_budaya", maxCount: 1 },
+    { name: "media_galeri_files", maxCount: 50 },
+  ]),
+  compressionMiddleware(), // Kompresi otomatis
   BudayaController.updateBudaya
 );
 
@@ -35,4 +44,3 @@ router.delete(
 );
 
 module.exports = router;
-    

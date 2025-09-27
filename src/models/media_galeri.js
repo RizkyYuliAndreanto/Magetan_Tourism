@@ -25,11 +25,6 @@ module.exports = (sequelize, DataTypes) => {
         constraints: false,
         as: "umkm",
       });
-      Media_Galeri.belongsTo(models.Sejarah, {
-        foreignKey: "id_konten",
-        constraints: false,
-        as: "sejarah",
-      });
       Media_Galeri.belongsTo(models.Budaya, {
         foreignKey: "id_konten",
         constraints: false,

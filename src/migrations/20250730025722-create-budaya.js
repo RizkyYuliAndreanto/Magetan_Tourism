@@ -22,15 +22,9 @@ module.exports = {
         type: Sequelize.TEXT,
         allowNull: false,
       },
-      id_kategori_budaya: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        references: {
-          model: "Kategori_Budayas",
-          key: "id_kategori_budaya",
-        },
-        onUpdate: "CASCADE",
-        onDelete: "RESTRICT",
+      kategori_budaya: {
+        type: Sequelize.ENUM('Objek Pengembangan Budaya', 'Situs Kebudayaan', 'Sejarah'),
+        allowNull: true,
       },
       id_admin: {
         type: Sequelize.INTEGER,

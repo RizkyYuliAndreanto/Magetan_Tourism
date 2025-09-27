@@ -44,14 +44,6 @@ module.exports = (sequelize, DataTypes) => {
         },
         as: "shareDestinasi",
       });
-      Destinasi.hasOne(models.Halaman, {
-        foreignKey: "id_konten",
-        constraints: false,
-        scope: {
-          tipe_konten: "destinasi",
-        },
-        as: "halamanDestinasi",
-      });
     }
   }
   Destinasi.init(

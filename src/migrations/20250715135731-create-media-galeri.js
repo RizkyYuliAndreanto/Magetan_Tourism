@@ -10,7 +10,7 @@ module.exports = {
         type: Sequelize.INTEGER,
       },
       tipe_konten: {
-        type: Sequelize.ENUM("berita", "destinasi", "sejarah", "event", "umkm"),
+        type: Sequelize.ENUM("berita", "destinasi", "budaya", "event", "umkm"),
       },
       id_konten: {
         type: Sequelize.INTEGER,

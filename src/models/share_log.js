@@ -4,11 +4,7 @@ const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Share_Log extends Model {
     static associate(models) {
-      // Share_Log dimiliki oleh Pengunjung
-      Share_Log.belongsTo(models.Pengunjung, {
-        foreignKey: "id_pengunjung",
-        as: "pengunjung",
-      });
+      // Note: id_pengunjung field exists but no Pengunjung model/table
       // Share_Log adalah polimorfik, terkait dengan berbagai model konten
       Share_Log.belongsTo(models.Berita, {
         foreignKey: "id_konten",
@@ -28,18 +24,17 @@ module.exports = (sequelize, DataTypes) => {
         scope: { tipe_konten: "umkm" },
         as: "umkm",
       });
+      Share_Log.belongsTo(models.Budaya, {
+        foreignKey: "id_konten",
+        constraints: false,
+        scope: { tipe_konten: "budaya" },
+        as: "budaya",
+      });
       Share_Log.belongsTo(models.Destinasi, {
         foreignKey: "id_konten",
         constraints: false,
         scope: { tipe_konten: "destinasi" },
         as: "destinasi",
-      });
-      Share_Log.belongsTo(models.Sejarah, {
-        // Tambahkan asosiasi untuk Sejarah
-        foreignKey: "id_konten",
-        constraints: false,
-        scope: { tipe_konten: "sejarah" },
-        as: "sejarah",
       });
     }
   }

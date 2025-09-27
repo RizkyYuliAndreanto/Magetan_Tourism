@@ -4,11 +4,8 @@ const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Statistik_Kunjungan extends Model {
     static associate(models) {
-      // Statistik_Kunjungan dimiliki oleh Halaman
-      Statistik_Kunjungan.belongsTo(models.Halaman, {
-        foreignKey: "id_halaman",
-        as: "halaman",
-      });
+      // Note: id_halaman field exists but Halaman model removed
+      // This can be used for custom page tracking if needed
     }
   }
   Statistik_Kunjungan.init(

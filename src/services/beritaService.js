@@ -1,5 +1,7 @@
 // src/services/beritaService.js
 const { Berita, Kategori_Berita, Admin, Media_Galeri } = require("../models"); // Pastikan Media_Galeri di-import
+const FileHelper = require("../utils/fileHelper");
+const InteractionService = require("./interactionService");
 
 class BeritaService {
   static async getAllBerita() {
@@ -157,6 +159,12 @@ class BeritaService {
           "Forbidden: Only Admin or Super Admin can update news."
         );
       }
+
+      // Hapus file gambar lama jika ada gambar baru
+      if (updateData.gambar_hero_berita && berita.gambar_hero_berita) {
+        FileHelper.deleteFile(berita.gambar_hero_berita);
+      }
+
       await berita.update(updateData);
       return berita;
     } catch (error) {
@@ -166,10 +174,20 @@ class BeritaService {
 
   static async deleteBerita(id, idAdminRequester, levelAksesRequester) {
     try {
-      const berita = await Berita.findByPk(id);
+      const berita = await Berita.findByPk(id, {
+        include: [
+          {
+            model: Media_Galeri,
+            as: "galeriBerita",
+            attributes: ["path_file"],
+          },
+        ],
+      });
+
       if (!berita) {
         throw new Error("Berita not found");
       }
+
       if (
         levelAksesRequester === "admin" &&
         berita.id_admin !== idAdminRequester
@@ -183,10 +201,54 @@ class BeritaService {
           "Forbidden: Only Admin or Super Admin can delete news."
         );
       }
+
+      // Hapus file gambar hero
+      if (berita.gambar_hero_berita) {
+        FileHelper.deleteFile(berita.gambar_hero_berita);
+      }
+
+      // Hapus semua file di galeri yang terkait
+      if (berita.galeriBerita && berita.galeriBerita.length > 0) {
+        const filePaths = berita.galeriBerita.map((item) => item.path_file);
+        FileHelper.deleteMultipleFiles(filePaths);
+      }
+
+      // Hapus data interactions terkait (likes, comments, shares)
+      await Promise.all([
+        InteractionService.deleteLikesByContent("berita", id),
+        InteractionService.deleteCommentsByContent("berita", id),
+        InteractionService.deleteSharesByContent("berita", id),
+      ]);
+
       await berita.destroy();
       return { message: "Berita deleted successfully" };
     } catch (error) {
       throw new Error("Could not delete berita: " + error.message);
+    }
+  }
+
+  // Method untuk mendapatkan berita dengan interaksi
+  static async getBeritaWithInteractions(id, userId = null) {
+    try {
+      const berita = await this.getBeritaById(id);
+      if (!berita) {
+        throw new Error("Berita not found");
+      }
+
+      const interactions = await InteractionService.getContentInteractions(
+        "berita",
+        id,
+        userId
+      );
+
+      return {
+        ...berita.toJSON(),
+        interactions,
+      };
+    } catch (error) {
+      throw new Error(
+        "Could not fetch berita with interactions: " + error.message
+      );
     }
   }
 }
