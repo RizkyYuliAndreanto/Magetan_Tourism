@@ -85,30 +85,22 @@ const configureMulter = () => {
         false
       );
     }
-    // Check file size based on mimetype
-    if (file.mimetype.startsWith("image/")) {
-      if (file.size > MAX_IMAGE_SIZE) {
-        return cb(new Error("Ukuran gambar maksimal 10 MB!"), false);
-      }
-    } else if (
-      file.mimetype === "application/pdf" ||
-      file.mimetype.startsWith("video/")
-    ) {
-      if (file.size > MAX_PDF_VIDEO_SIZE) {
-        return cb(new Error("Ukuran file PDF/video maksimal 50 MB!"), false);
-      }
-    }
+
+    // File size akan dicek di level controller untuk kompresi otomatis
+    // Multer hanya mengecek limit maksimal absolut
     cb(null, true);
   };
 
   // Note: Kompresi file (gambar/pdf/video) dilakukan setelah upload, di controller, menggunakan library seperti sharp (gambar), pdf-lib (pdf), atau ffmpeg (video).
+  // File size checking untuk kompresi otomatis juga dilakukan di controller.
 
   return multer({
     storage: storage,
     fileFilter: fileFilter,
-    // Set limit besar, validasi dilakukan di fileFilter
+    // Set limit maksimal absolut untuk keamanan
     limits: {
-      fileSize: MAX_PDF_VIDEO_SIZE,
+      fileSize: MAX_PDF_VIDEO_SIZE, // 50MB sebagai batas maksimal
+      files: 10, // Maksimal 10 files per request
     },
   });
 };

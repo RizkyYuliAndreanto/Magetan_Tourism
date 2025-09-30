@@ -4,11 +4,8 @@ const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Komentar extends Model {
     static associate(models) {
-      // Komentar dimiliki oleh Pengunjung
-      Komentar.belongsTo(models.Pengunjung, {
-        foreignKey: "id_pengunjung",
-        as: "pengunjung",
-      });
+      // Note: id_pengunjung field exists but no Pengunjung model/table
+      // Komentar uses nama_komentator and email_komentator fields directly
       // Komentar adalah polimorfik, dimiliki oleh berbagai model konten
       Komentar.belongsTo(models.Berita, {
         foreignKey: "id_konten",
@@ -34,12 +31,11 @@ module.exports = (sequelize, DataTypes) => {
         scope: { tipe_konten: "umkm" },
         as: "umkm",
       });
-      Komentar.belongsTo(models.Sejarah, {
-        // Tambahkan asosiasi untuk Sejarah
+      Komentar.belongsTo(models.Budaya, {
         foreignKey: "id_konten",
         constraints: false,
-        scope: { tipe_konten: "sejarah" },
-        as: "sejarah",
+        scope: { tipe_konten: "budaya" },
+        as: "budaya",
       });
     }
   }

@@ -7,7 +7,6 @@ const kategoriBeritaRoutes = require("./src/routes/kategoriBeritaRoutes"); // In
 const destinasiRoutes = require("./src/routes/destinasiRoutes"); // Ini penting!
 const kategoriDestinasiRoutes = require("./src/routes/kategoriDestinasiRoutes"); // Ini penting!
 const eventRoutes = require("./src/routes/eventRoutes"); // Ini penting!
-const sejarahRoutes = require("./src/routes/sejarahRoutes"); // Ini penting!
 const umkmRoutes = require("./src/routes/umkmRoutes"); // Ini penting!
 const mediaGaleriRoutes = require("./src/routes/mediaGaleriRoutes"); // Ini penting!
 const strukturAnggotaRoutes = require("./src/routes/strukturAnggotaRoutes"); // Ini penting!
@@ -18,8 +17,9 @@ const akomodasiRoutes = require("./src/routes/akomodasiRoutes"); // Ini penting!
 const kategoriPpidRoutes = require("./src/routes/kategoriPpidRoutes"); // Ini penting!
 const kontenPpidRoutes = require("./src/routes/kontenPpidRoutes"); // Ini penting!
 const kategoriUmkmRoutes = require("./src/routes/kategoriUmkmRoutes"); // Ini penting!
-const kategoriBudayaRoutes = require("./src/routes/kategoriBudayaRoutes"); // Ini penting!
+
 const budayaRoutes = require("./src/routes/budayaRoutes"); // Ini penting!
+const interactionRoutes = require("./src/routes/interactionRoutes"); // Routes untuk like, comment, share
 
 const app = express();
 
@@ -41,7 +41,6 @@ app.use("/api/kategori-berita", kategoriBeritaRoutes);
 app.use("/api/destinasi", destinasiRoutes);
 app.use("/api/kategori-destinasi", kategoriDestinasiRoutes);
 app.use("/api/event", eventRoutes);
-app.use("/api/sejarah", sejarahRoutes);
 app.use("/api/umkm", umkmRoutes);
 app.use("/api/media-galeri", mediaGaleriRoutes);
 app.use("/api/struktur-anggota", strukturAnggotaRoutes);
@@ -52,8 +51,9 @@ app.use("/api/akomodasi", akomodasiRoutes);
 app.use("/api/kategori-ppid", kategoriPpidRoutes);
 app.use("/api/konten-ppid", kontenPpidRoutes);
 app.use("/api/kategori-umkm", kategoriUmkmRoutes);
-app.use("/api/kategori-budaya", kategoriBudayaRoutes);
+
 app.use("/api/budaya", budayaRoutes);
+app.use("/api/interactions", interactionRoutes);
 
 // Middleware penanganan kesalahan umum
 app.use((err, req, res, next) => {

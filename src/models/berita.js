@@ -42,13 +42,6 @@ module.exports = (sequelize, DataTypes) => {
         scope: { tipe_konten: "berita" },
         as: "shareBerita",
       });
-      // Asosiasi ke model Halaman
-      Berita.hasOne(models.Halaman, {
-        foreignKey: "id_konten",
-        constraints: false,
-        scope: { tipe_konten: "berita" },
-        as: "halamanBerita",
-      });
     }
   }
   Berita.init(
@@ -63,17 +56,9 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      teras_berita: {
-        type: DataTypes.TEXT,
-        allowNull: false,
-      },
       isi_berita: {
         type: DataTypes.TEXT,
         allowNull: false,
-      },
-      penutup_berita: {
-        type: DataTypes.TEXT,
-        allowNull: true,
       },
       tanggal_publikasi: {
         type: DataTypes.DATE,
@@ -81,14 +66,6 @@ module.exports = (sequelize, DataTypes) => {
       },
       gambar_hero_berita: {
         type: DataTypes.STRING,
-        allowNull: true,
-      },
-      koordinat_lokasi: {
-        type: DataTypes.STRING,
-        allowNull: true,
-      },
-      zoom_level_peta: {
-        type: DataTypes.INTEGER,
         allowNull: true,
       },
       jumlah_dilihat: {

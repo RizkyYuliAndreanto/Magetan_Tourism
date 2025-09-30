@@ -40,14 +40,6 @@ module.exports = (sequelize, DataTypes) => {
         },
         as: "shareEvent",
       });
-      Event.hasOne(models.Halaman, {
-        foreignKey: "id_konten",
-        constraints: false,
-        scope: {
-          tipe_konten: "event",
-        },
-        as: "halamanEvent",
-      });
     }
   }
   Event.init(

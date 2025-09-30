@@ -1,5 +1,7 @@
 // src/services/eventService.js
 const { Event, Admin, Media_Galeri } = require("../models"); // Pastikan path benar
+const FileHelper = require("../utils/fileHelper");
+const InteractionService = require("./interactionService");
 
 class EventService {
   static async getAllEvent() {
@@ -121,7 +123,15 @@ class EventService {
 
   static async deleteEvent(id, idAdminRequester, levelAksesRequester) {
     try {
-      const event = await Event.findByPk(id);
+      const event = await Event.findByPk(id, {
+        include: [
+          {
+            model: Media_Galeri,
+            as: "galeriEvent",
+            attributes: ["path_file"],
+          },
+        ],
+      });
 
       if (!event) {
         throw new Error("Event not found"); // Perbaikan: capital E
@@ -144,10 +154,51 @@ class EventService {
         );
       }
 
+      // Hapus file gambar dan brosur
+      const filesToDelete = [];
+      if (event.gambar_event) filesToDelete.push(event.gambar_event);
+      if (event.brosur_event) filesToDelete.push(event.brosur_event);
+
+      // Hapus file galeri terkait
+      if (event.galeriEvent && event.galeriEvent.length > 0) {
+        const galeriFiles = event.galeriEvent.map((item) => item.path_file);
+        filesToDelete.push(...galeriFiles);
+      }
+
+      FileHelper.deleteMultipleFiles(filesToDelete);
+
+      // Hapus interactions terkait
+      await InteractionService.deleteAllInteractionsByContent("event", id);
+
       await event.destroy();
       return { message: "Event deleted successfully" };
     } catch (error) {
       throw new Error("Could not delete event: " + error.message); // Perbaikan typo 'berita'
+    }
+  }
+
+  // Method untuk mendapatkan event dengan interaksi
+  static async getEventWithInteractions(id, userId = null) {
+    try {
+      const event = await this.getEventById(id);
+      if (!event) {
+        throw new Error("Event not found");
+      }
+
+      const interactions = await InteractionService.getContentInteractions(
+        "event",
+        id,
+        userId
+      );
+
+      return {
+        ...event.toJSON(),
+        interactions,
+      };
+    } catch (error) {
+      throw new Error(
+        "Could not fetch event with interactions: " + error.message
+      );
     }
   }
 }

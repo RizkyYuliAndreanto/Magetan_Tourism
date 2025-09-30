@@ -14,7 +14,9 @@ class BudayaController {
   static async getBudayaById(req, res) {
     try {
       const { id } = req.params;
-      const budaya = await BudayaService.getBudayaById(id);
+      const userId = req.user?.id || req.query.userId;
+
+      const budaya = await BudayaService.getBudayaWithInteractions(id, userId);
       if (!budaya) {
         return res.status(404).json({ message: "Culture data not found" });
       }
@@ -25,8 +27,7 @@ class BudayaController {
   }
 
   static async createBudaya(req, res) {
-    const { judul_budaya, deskripsi_budaya, id_kategori_budaya } =
-      req.body;
+    const { judul_budaya, deskripsi_budaya, kategori_budaya } = req.body;
     const id_admin = req.user.id;
 
     const gambar_budaya_path =
@@ -38,10 +39,9 @@ class BudayaController {
       const newBudaya = await BudayaService.createBudaya(
         {
           judul_budaya,
-          
           gambar_budaya: gambar_budaya_path,
           deskripsi_budaya,
-          id_kategori_budaya,
+          kategori_budaya,
           id_admin,
         },
         req.user.level_akses
@@ -60,7 +60,7 @@ class BudayaController {
 
   static async updateBudaya(req, res) {
     const { id } = req.params;
-    
+
     const updateData = req.body;
     const id_admin_requester = req.user.id;
     const level_akses_requester = req.user.level_akses;

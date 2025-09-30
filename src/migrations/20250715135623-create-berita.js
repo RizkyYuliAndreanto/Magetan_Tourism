@@ -15,17 +15,9 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      teras_berita: {
-        type: Sequelize.TEXT,
-        allowNull: false,
-      },
       isi_berita: {
         type: Sequelize.TEXT,
         allowNull: false,
-      },
-      penutup_berita: {
-        type: Sequelize.TEXT,
-        allowNull: true,
       },
       tanggal_publikasi: {
         type: Sequelize.DATE,
@@ -33,14 +25,6 @@ module.exports = {
       },
       gambar_hero_berita: {
         type: Sequelize.STRING,
-        allowNull: true,
-      },
-      koordinat_lokasi: {
-        type: Sequelize.STRING,
-        allowNull: true,
-      },
-      zoom_level_peta: {
-        type: Sequelize.INTEGER,
         allowNull: true,
       },
       jumlah_dilihat: {
