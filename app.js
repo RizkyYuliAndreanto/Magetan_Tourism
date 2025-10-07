@@ -20,6 +20,8 @@ const kategoriUmkmRoutes = require("./src/routes/kategoriUmkmRoutes"); // Ini pe
 
 const budayaRoutes = require("./src/routes/budayaRoutes"); // Ini penting!
 const interactionRoutes = require("./src/routes/interactionRoutes"); // Routes untuk like, comment, share
+const dashboardRoutes = require("./src/routes/dashboardRoutes"); // Routes untuk dashboard
+const adminRoutes = require("./src/routes/adminRoutes"); // Routes untuk admin activity
 
 const app = express();
 
@@ -54,6 +56,12 @@ app.use("/api/kategori-umkm", kategoriUmkmRoutes);
 
 app.use("/api/budaya", budayaRoutes);
 app.use("/api/interactions", interactionRoutes);
+app.use("/api/dashboard", dashboardRoutes);
+app.use("/api/admin", adminRoutes);
+
+// Public routes
+const publicRoutes = require("./src/routes/publicRoutes");
+app.use("/api/public", publicRoutes);
 
 // Middleware penanganan kesalahan umum
 app.use((err, req, res, next) => {
