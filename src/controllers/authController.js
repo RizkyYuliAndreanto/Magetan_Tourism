@@ -1,6 +1,7 @@
 // src/controllers/authController.js
 const AuthService = require("../services/authService");
 const { UniqueConstraintError, ValidationError } = require("sequelize");
+const { logManualActivity } = require("../middleware/activityLoggerMiddleware");
 
 class AuthController {
   static async register(req, res) {
@@ -28,11 +29,9 @@ class AuthController {
       if (error instanceof UniqueConstraintError) {
         // Jika username atau email duplikat
         const field = error.errors[0].path; // 'username' atau 'email'
-        return res
-          .status(400)
-          .json({
-            error: `${field} '${req.body[field]}' already exists. Please choose another.`,
-          });
+        return res.status(400).json({
+          error: `${field} '${req.body[field]}' already exists. Please choose another.`,
+        });
       } else if (error instanceof ValidationError) {
         // Error validasi lainnya
         return res.status(400).json({ error: error.errors[0].message });
@@ -65,11 +64,9 @@ class AuthController {
       // Tangani error validasi Sequelize secara spesifik
       if (error instanceof UniqueConstraintError) {
         const field = error.errors[0].path;
-        return res
-          .status(400)
-          .json({
-            error: `${field} '${req.body[field]}' already exists. Please choose another.`,
-          });
+        return res.status(400).json({
+          error: `${field} '${req.body[field]}' already exists. Please choose another.`,
+        });
       } else if (error instanceof ValidationError) {
         return res.status(400).json({ error: error.errors[0].message });
       } else {
@@ -94,6 +91,15 @@ class AuthController {
         identifier,
         password
       ); // Teruskan identifier
+
+      // Log aktivitas login
+      await logManualActivity(admin.id_admin, "login", "system", {
+        entityName: admin.nama_lengkap || admin.username,
+        description: `${admin.nama_lengkap || admin.username} login ke sistem`,
+        ipAddress: req.ip || req.connection.remoteAddress,
+        userAgent: req.get("User-Agent"),
+      });
+
       res.status(200).json({ message: "Login successful", admin, token });
     } catch (error) {
       res.status(401).json({ error: error.message });

@@ -4,6 +4,11 @@ const EventController = require("../controllers/eventController"); // Pastikan p
 const authMiddleware = require("../middleware/authMiddleware");
 const authorize = require("../middleware/authorizeMiddleware");
 const configureMulter = require("../utils/multerConfig"); // Sesuaikan path jika berbeda
+const {
+  activityLogger,
+  saveOriginalData,
+} = require("../middleware/activityLoggerMiddleware");
+const { Event } = require("../models");
 
 const router = express.Router();
 
@@ -24,6 +29,7 @@ router.post(
     { name: "brosur_event", maxCount: 1 },
     { name: "gambar_event", maxCount: 1 },
   ]),
+  activityLogger("create", "event"),
   EventController.createEvent
 );
 
@@ -31,10 +37,12 @@ router.put(
   "/:id",
   authMiddleware,
   authorize(["admin", "superadmin"]),
+  saveOriginalData(Event),
   upload.fields([
     { name: "brosur_event", maxCount: 1 },
     { name: "gambar_event", maxCount: 1 },
   ]),
+  activityLogger("update", "event"),
   EventController.updateEvent
 );
 
@@ -42,6 +50,8 @@ router.delete(
   "/:id",
   authMiddleware,
   authorize(["admin", "superadmin"]),
+  saveOriginalData(Event),
+  activityLogger("delete", "event"),
   EventController.deleteEvent
 );
 
