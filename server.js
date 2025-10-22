@@ -6,20 +6,22 @@ const { sequelize } = require("./src/models");
 
 const PORT = process.env.PORT || 5000;
 
+// Test koneksi database tanpa sync (karena kita menggunakan migration)
 sequelize
-  .sync({ alter: true })
+  .authenticate()
   .then(() => {
+    console.log("✅ Koneksi database berhasil!");
     app.listen(PORT, () => {
       // Gunakan instance 'app' yang diimpor
-      console.log(`Server berjalan di port ${PORT}`);
+      console.log(`🚀 Server berjalan di port ${PORT}`);
       console.log(
-        `Frontend URL origin: ${
+        `🌐 Frontend URL origin: ${
           process.env.FRONTEND_URL || "http://localhost:5173"
         }`
       );
     });
   })
   .catch((err) => {
-    console.error("Gagal terhubung ke database:", err);
+    console.error("❌ Gagal terhubung ke database:", err);
     process.exit(1);
   });
