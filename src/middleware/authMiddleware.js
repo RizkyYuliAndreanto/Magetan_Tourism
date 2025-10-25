@@ -14,6 +14,8 @@ const authMiddleware = (req, res, next) => {
       process.env.JWT_SECRET
     );
     req.user = decoded; // This will contain { id: admin.id_admin, level_akses: admin.level_akses }
+    // Also set req.admin for consistency with activityLogger
+    req.admin = { id_admin: decoded.id, level_akses: decoded.level_akses };
     next();
   } catch (error) {
     res.status(401).json({ message: "Token is not valid" });

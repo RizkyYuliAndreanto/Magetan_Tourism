@@ -33,12 +33,7 @@ class BeritaController {
 
   // Buat berita baru
   static async createBerita(req, res) {
-    const {
-      judul,
-      isi_berita,
-      tanggal_publikasi,
-      id_kategori,
-    } = req.body;
+    const { judul, isi_berita, tanggal_publikasi, id_kategori } = req.body;
     const id_admin = req.user.id;
 
     let gambar_hero_berita = null;
@@ -77,9 +72,9 @@ class BeritaController {
       const newBerita = await BeritaService.createBerita(
         {
           judul,
-         
+
           isi_berita,
-         
+
           tanggal_publikasi,
           gambar_hero_berita,
           id_kategori,
@@ -198,6 +193,151 @@ class BeritaController {
         return res.status(404).json({ error: error.message });
       }
       res.status(403).json({ error: error.message });
+    }
+  }
+
+  // Update berita dengan media galeri secara atomic
+  static async updateBeritaWithMedia(req, res) {
+    const { id } = req.params;
+    const beritaData = req.body;
+    const id_admin_requester = req.user.id;
+    const level_akses_requester = req.user.level_akses;
+
+    try {
+      console.log("=== UPDATE BERITA WITH MEDIA CONTROLLER ===");
+      console.log("Request body keys:", Object.keys(req.body));
+      console.log(
+        "Request files:",
+        req.files ? Object.keys(req.files) : "No files"
+      );
+
+      // Handle gambar hero berita upload dengan kompresi
+      if (
+        req.files &&
+        req.files["gambar_hero_berita"] &&
+        req.files["gambar_hero_berita"][0]
+      ) {
+        const file = req.files["gambar_hero_berita"][0];
+        const MAX_IMAGE_SIZE = 1024 * 1024 * 10; // 10 MB
+
+        // Kompresi gambar jika size > 10MB
+        if (file.size > MAX_IMAGE_SIZE) {
+          const inputPath = file.path;
+          const ext = path.extname(file.originalname);
+          const outputPath = inputPath.replace(ext, `-compressed.jpg`);
+
+          try {
+            await sharp(inputPath).jpeg({ quality: 70 }).toFile(outputPath);
+            fs.unlinkSync(inputPath);
+            file.path = outputPath;
+            file.filename = path.basename(outputPath);
+          } catch (err) {
+            console.log("Gagal kompresi gambar:", err.message);
+          }
+        }
+
+        beritaData.gambar_hero_berita = `/uploads/berita/gambar-hero/${file.filename}`;
+      }
+
+      // Parse media operations dari request body
+      let mediaOperations = null;
+      if (beritaData.media_operations) {
+        try {
+          mediaOperations =
+            typeof beritaData.media_operations === "string"
+              ? JSON.parse(beritaData.media_operations)
+              : beritaData.media_operations;
+        } catch (parseError) {
+          return res.status(400).json({
+            error: "Invalid media_operations format: " + parseError.message,
+          });
+        }
+      }
+
+      // Handle new media files
+      let newMediaFiles = [];
+      if (req.files && req.files["media_galeri_files"]) {
+        newMediaFiles = req.files["media_galeri_files"].map((file, index) => ({
+          ...file,
+          deskripsi_file: beritaData[`media_deskripsi_${index}`] || "",
+          urutan_tampil:
+            parseInt(beritaData[`media_urutan_${index}`]) || 100 + index,
+        }));
+      }
+
+      // Remove media operation data from berita data
+      delete beritaData.media_operations;
+      Object.keys(beritaData).forEach((key) => {
+        if (
+          key.startsWith("media_deskripsi_") ||
+          key.startsWith("media_urutan_")
+        ) {
+          delete beritaData[key];
+        }
+      });
+
+      console.log("=== MEDIA OPERATIONS DEBUG ===");
+      console.log("🔍 [Controller] Parsed media operations:", mediaOperations);
+      console.log(
+        "🔍 [Controller] Media operations delete array:",
+        mediaOperations?.delete || "undefined"
+      );
+      console.log(
+        "🔍 [Controller] Delete array length:",
+        (mediaOperations?.delete || []).length
+      );
+      console.log(
+        "🔍 [Controller] New media files count:",
+        newMediaFiles.length
+      );
+      console.log("=== END MEDIA OPERATIONS DEBUG ===");
+
+      const updatedBerita = await BeritaService.updateBeritaWithMedia(
+        id,
+        beritaData,
+        mediaOperations,
+        newMediaFiles,
+        id_admin_requester,
+        level_akses_requester
+      );
+
+      res.status(200).json({
+        success: true,
+        message: "Berita and media updated successfully",
+        berita: updatedBerita,
+        media_stats: {
+          kept: mediaOperations?.keep?.length || 0,
+          updated: mediaOperations?.update?.length || 0,
+          deleted: mediaOperations?.delete?.length || 0,
+          created: newMediaFiles.length,
+        },
+      });
+    } catch (error) {
+      console.log("ERROR in updateBeritaWithMedia controller:", error.message);
+
+      if (error.name === "SequelizeValidationError") {
+        return res.status(400).json({ error: error.message });
+      }
+      if (error.message === "Berita not found") {
+        return res.status(404).json({ error: error.message });
+      }
+      if (error.message.includes("Media not found")) {
+        return res.status(404).json({ error: error.message });
+      }
+      if (error.message.includes("Forbidden")) {
+        return res.status(403).json({ error: error.message });
+      }
+      if (
+        error.message.includes("Jenis file tidak didukung") ||
+        error.message.includes("Unexpected field name") ||
+        error.message.includes("Invalid media_operations format")
+      ) {
+        return res.status(400).json({ error: error.message });
+      }
+
+      res.status(500).json({
+        error: "Internal Server Error: " + error.message,
+      });
     }
   }
 }
