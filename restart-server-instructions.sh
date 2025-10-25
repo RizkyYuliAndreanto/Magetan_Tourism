@@ -1,0 +1,28 @@
+#!/bin/bash
+echo "🔄 Restarting backend server to apply middleware changes..."
+echo ""
+echo "⚠️  IMPORTANT: Please follow these steps:"
+echo ""
+echo "1. Stop your current backend server (Ctrl+C in the terminal running npm start)"
+echo ""
+echo "2. Start the backend server again:"
+echo "   cd 'd:\\PROJECT\\Magetan Tourism\\Backend'"
+echo "   npm start"
+echo ""
+echo "3. Test the activity logging by performing a CRUD operation:"
+echo "   - Create a new berita"
+echo "   - Update an existing berita"
+echo "   - Delete a berita"
+echo ""
+echo "4. Check the dashboard to see the new detailed activity format"
+echo ""
+echo "✅ The middleware has been updated with:"
+echo "   - Detailed admin name extraction"
+echo "   - Enhanced entityName extraction (from response + fallback from originalData)"
+echo "   - Debug logging to help identify data extraction issues"
+echo "   - Better entity display names"
+echo ""
+echo "Expected output format:"
+echo '   "Super Administrator menambahkan berita baru \"Judul Berita\""'
+echo '   "Super Administrator mengupdate/edit berita \"Judul Berita\""'
+echo '   "Super Administrator menghapus berita \"Judul Berita\""'

@@ -11,6 +11,7 @@ const upload = configureMulter();
 
 // Public routes
 router.get("/", MediaGaleriController.getAllMediaGaleri);
+router.get("/by-content", MediaGaleriController.getMediaByContent);
 router.get("/:id", MediaGaleriController.getMediaGaleriById);
 
 // Protected routes
@@ -22,6 +23,22 @@ router.post(
   // Nama field di form-data harus 'media_galeri_files'
   upload.array("media_galeri_files", 10), // Maksimal 10 file
   MediaGaleriController.createMediaGaleri
+);
+
+// Batch delete route
+router.delete(
+  "/batch",
+  authMiddleware,
+  authorize(["admin", "superadmin"]),
+  MediaGaleriController.batchDeleteMediaGaleri
+);
+
+// Update data only (tidak ganti file)
+router.patch(
+  "/:id/data",
+  authMiddleware,
+  authorize(["admin", "superadmin"]),
+  MediaGaleriController.updateMediaData
 );
 
 router.put(

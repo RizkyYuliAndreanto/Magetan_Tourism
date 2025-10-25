@@ -47,6 +47,21 @@ router.put(
   BeritaController.updateBerita
 );
 
+// New route for atomic update berita with media operations
+router.put(
+  "/:id/with-media",
+  authMiddleware,
+  authorize(["admin", "superadmin"]),
+  saveOriginalData(Berita),
+  upload.fields([
+    { name: "gambar_hero_berita", maxCount: 1 },
+    { name: "media_galeri_files", maxCount: 50 },
+  ]),
+  compressionMiddleware(),
+  activityLogger("update", "berita"),
+  BeritaController.updateBeritaWithMedia
+);
+
 router.delete(
   "/:id",
   authMiddleware,
