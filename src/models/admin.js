@@ -27,7 +27,7 @@ module.exports = (sequelize, DataTypes) => {
         unique: true,
       },
       level_akses: {
-        type: DataTypes.ENUM("superadmin","admin", "user"), // Pastikan ENUM sudah update
+        type: DataTypes.ENUM("superadmin", "admin", "user"), // Pastikan ENUM sudah update
         allowNull: false,
         defaultValue: "user",
       },
@@ -39,6 +39,11 @@ module.exports = (sequelize, DataTypes) => {
       resetPasswordExpires: {
         type: DataTypes.DATE,
         allowNull: true, // Bisa null jika tidak ada reset token aktif
+      },
+      is_blocked: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
       },
       created_at: {
         type: DataTypes.DATE,
