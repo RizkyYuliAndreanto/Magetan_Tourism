@@ -16,7 +16,9 @@ class KategoriPpidService {
           attributes: [
             "id_konten_ppid",
             "judul_konten",
+            "deskripsi_konten",
             "file_pdf_path",
+            "gambar_sampul",
             "tanggal_publikasi",
           ],
         });
@@ -64,7 +66,9 @@ class KategoriPpidService {
           attributes: [
             "id_konten_ppid",
             "judul_konten",
+            "deskripsi_konten",
             "file_pdf_path",
+            "gambar_sampul",
             "tanggal_publikasi",
           ],
         });
@@ -84,6 +88,41 @@ class KategoriPpidService {
       return kategori;
     } catch (error) {
       throw new Error("Could not fetch PPID category by ID: " + error.message);
+    }
+  }
+
+  // Method baru untuk mengambil sub-kategori berdasarkan kategori induk
+  static async getSubKategoriByInduk(idKategoriInduk, includeKonten = false) {
+    try {
+      const includeOptions = [];
+
+      if (includeKonten) {
+        includeOptions.push({
+          model: Konten_PPID,
+          as: "kontenPPID",
+          attributes: [
+            "id_konten_ppid",
+            "judul_konten",
+            "deskripsi_konten",
+            "file_pdf_path",
+            "gambar_sampul",
+            "tanggal_publikasi",
+          ],
+          order: [["tanggal_publikasi", "DESC"]],
+        });
+      }
+
+      const subKategoris = await Kategori_PPID.findAll({
+        where: {
+          id_kategori_induk: idKategoriInduk,
+        },
+        include: includeOptions,
+        order: [["nama_kategori", "ASC"]],
+      });
+
+      return subKategoris;
+    } catch (error) {
+      throw new Error("Could not fetch sub-categories: " + error.message);
     }
   }
 

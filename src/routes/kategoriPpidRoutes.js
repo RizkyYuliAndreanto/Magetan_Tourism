@@ -9,6 +9,7 @@ const router = express.Router();
 // Public routes (pengunjung bisa melihat kategori PPID)
 router.get("/", KategoriPpidController.getAllKategoriPpid);
 router.get("/:id", KategoriPpidController.getKategoriPpidById);
+router.get("/:id/subkategori", KategoriPpidController.getSubKategoriByInduk);
 
 // Protected routes (membutuhkan otentikasi dan otorisasi untuk CREATE, UPDATE, DELETE)
 router.post(

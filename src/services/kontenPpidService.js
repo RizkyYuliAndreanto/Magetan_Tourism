@@ -14,7 +14,12 @@ class KontenPpidService {
           {
             model: Kategori_PPID,
             as: "kategoriPPID", // Sesuai alias di model Konten_PPID
-            attributes: ["id_kategori_ppid", "nama_kategori", "level_kategori"],
+            attributes: [
+              "id_kategori_ppid",
+              "nama_kategori",
+              "level_kategori",
+              "id_kategori_induk",
+            ],
           },
           {
             model: Admin,
@@ -54,6 +59,7 @@ class KontenPpidService {
               "nama_kategori",
               "deskripsi_kategori",
               "level_kategori",
+              "id_kategori_induk",
             ],
             include: [
               {

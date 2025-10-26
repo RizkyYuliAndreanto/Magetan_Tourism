@@ -48,6 +48,23 @@ class KategoriPpidController {
     }
   }
 
+  // GET Sub-kategori berdasarkan kategori induk
+  static async getSubKategoriByInduk(req, res) {
+    try {
+      const { id } = req.params;
+      const { includeKonten } = req.query;
+
+      const subKategoris = await KategoriPpidService.getSubKategoriByInduk(
+        id,
+        includeKonten === "true"
+      );
+
+      res.status(200).json(subKategoris);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+
   // CREATE new Kategori_PPID
   static async createKategoriPpid(req, res) {
     const { nama_kategori, deskripsi_kategori, id_kategori_induk } = req.body;
