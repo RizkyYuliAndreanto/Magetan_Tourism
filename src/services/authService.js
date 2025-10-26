@@ -3,7 +3,7 @@ const { Admin } = require("../models"); // Adjust path as needed
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
-const crypto = require("crypto"); 
+const crypto = require("crypto");
 
 class AuthService {
   static async registerAdmin(
@@ -61,8 +61,21 @@ class AuthService {
         throw new Error("Invalid credentials");
       }
 
+      // Cek apakah akun diblokir
+      if (admin.is_blocked) {
+        throw new Error(
+          "Account has been blocked. Please contact administrator."
+        );
+      }
+
       const token = jwt.sign(
-        { id: admin.id_admin, level_akses: admin.level_akses },
+        {
+          id: admin.id_admin,
+          level_akses: admin.level_akses,
+          is_blocked: admin.is_blocked,
+          username: admin.username,
+          email: admin.email,
+        },
         process.env.JWT_SECRET,
         { expiresIn: process.env.JWT_EXPIRE || "1h" }
       );

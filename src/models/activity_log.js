@@ -30,7 +30,7 @@ module.exports = (sequelize, DataTypes) => {
         },
       },
       action: {
-        type: DataTypes.ENUM("create", "update", "delete", "login", "logout"),
+        type: DataTypes.STRING(50),
         allowNull: false,
       },
       entity: {

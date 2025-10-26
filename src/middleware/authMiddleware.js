@@ -1,7 +1,7 @@
 // src/middleware/authMiddleware.js
 const jwt = require("jsonwebtoken");
 
-const authMiddleware = (req, res, next) => {
+const authMiddleware = async (req, res, next) => {
   const token = req.header("Authorization");
 
   if (!token) {
@@ -13,9 +13,38 @@ const authMiddleware = (req, res, next) => {
       token.replace("Bearer ", ""),
       process.env.JWT_SECRET
     );
-    req.user = decoded; // This will contain { id: admin.id_admin, level_akses: admin.level_akses }
+
+    // Ambil data user dari database untuk mendapatkan status terbaru
+    const { Admin } = require("../models");
+    const user = await Admin.findByPk(decoded.id, {
+      attributes: [
+        "id_admin",
+        "username",
+        "level_akses",
+        "is_blocked",
+        "email",
+      ],
+    });
+
+    if (!user) {
+      return res.status(401).json({ message: "User not found" });
+    }
+
+    req.user = {
+      id: user.id_admin,
+      username: user.username,
+      level_akses: user.level_akses,
+      is_blocked: user.is_blocked,
+      email: user.email,
+    };
+
     // Also set req.admin for consistency with activityLogger
-    req.admin = { id_admin: decoded.id, level_akses: decoded.level_akses };
+    req.admin = {
+      id_admin: user.id_admin,
+      level_akses: user.level_akses,
+      is_blocked: user.is_blocked,
+    };
+
     next();
   } catch (error) {
     res.status(401).json({ message: "Token is not valid" });

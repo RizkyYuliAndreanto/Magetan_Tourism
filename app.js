@@ -22,6 +22,7 @@ const budayaRoutes = require("./src/routes/budayaRoutes"); // Ini penting!
 const interactionRoutes = require("./src/routes/interactionRoutes"); // Routes untuk like, comment, share
 const dashboardRoutes = require("./src/routes/dashboardRoutes"); // Routes untuk dashboard
 const adminRoutes = require("./src/routes/adminRoutes"); // Routes untuk admin activity
+const superAdminRoutes = require("./src/routes/superAdminRoutes"); // Routes untuk super admin
 
 const app = express();
 
@@ -61,6 +62,7 @@ app.use("/api/budaya", budayaRoutes);
 app.use("/api/interactions", interactionRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/super-admin", superAdminRoutes);
 
 // Public routes
 const publicRoutes = require("./src/routes/publicRoutes");
