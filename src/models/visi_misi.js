@@ -32,7 +32,7 @@ module.exports = (sequelize, DataTypes) => {
       deskripsi: {
         // Kolom deskripsi umum (seperti tambahan untuk Visi Misi, atau untuk teks jika tidak ada file)
         type: DataTypes.TEXT,
-        allowNull: true, // Mengizinkan null jika Visi Misi hanya berupa file
+        allowNull: true, // Mengizinkan null jika Visi Misi hanya berupa file 
       },
       tanggal_pembaruan: {
         type: DataTypes.DATE,
