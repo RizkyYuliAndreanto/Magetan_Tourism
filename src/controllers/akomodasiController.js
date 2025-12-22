@@ -39,11 +39,11 @@ class AkomodasiController {
     } = req.body;
     const id_admin = req.user.id;
 
-    const gambar_akomodasi_path = // Perbaikan di sini
+    const gambar_akomodasi_path =
       req.files &&
-      req.files["gambar_akomodasi"] && // Perbaikan di sini
-      req.files["gambar_akomodasi"][0]
-        ? `/uploads/akomodasi/gambar-utama/${req.files["gambar_akomodasi"][0].filename}` // Perbaikan di sini
+      req.files["gambar_utama_hotel"] &&
+      req.files["gambar_utama_hotel"][0]
+        ? `/uploads/akomodasi/gambar-utama/${req.files["gambar_utama_hotel"][0].filename}`
         : null;
 
     if (!nama_hotel || !deskripsi_hotel || !alamat_hotel) {
@@ -98,10 +98,10 @@ class AkomodasiController {
 
     if (
       req.files &&
-      req.files["gambar_akomodasi"] && // Perbaikan di sini
-      req.files["gambar_akomodasi"][0]
+      req.files["gambar_utama_hotel"] &&
+      req.files["gambar_utama_hotel"][0]
     ) {
-      updateData.gambar_utama_hotel = `/uploads/akomodasi/gambar-utama/${req.files["gambar_akomodasi"][0].filename}`; // Perbaikan di sini
+      updateData.gambar_utama_hotel = `/uploads/akomodasi/gambar-utama/${req.files["gambar_utama_hotel"][0].filename}`;
     }
 
     if (updateData.rating_hotel !== undefined) {
