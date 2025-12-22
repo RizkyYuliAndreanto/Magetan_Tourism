@@ -1,5 +1,18 @@
 // middlewares/validationMiddleware.js
 const Joi = require("joi");
+const { validationResult } = require("express-validator");
+
+// Express-validator middleware
+const validate = (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({
+      error: "Validation failed",
+      details: errors.array(),
+    });
+  }
+  next();
+};
 
 // --- Admin Validators ---
 const validateAdminCreation = (req, res, next) => {
@@ -487,4 +500,5 @@ module.exports = {
   validateKategoriPpidUpdate,
   validateKontenPpidCreation,
   validateKontenPpidUpdate,
+  validate,
 };
