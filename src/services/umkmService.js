@@ -58,7 +58,7 @@ class UMKMService {
           },
           {
             model: Kategori_UMKM,
-            as: "kategoriUmkm", // Perbaikan di sini
+            as: "kategoriUMKM", // Sesuaikan dengan model (huruf kapital MKM)
           },
           {
             model: Media_Galeri,
